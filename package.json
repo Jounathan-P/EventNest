@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode=development"
   },
   "repository": {
     "type": "git",
@@ -16,10 +17,27 @@
     "url": "https://github.com/Jounathan-P/EventNest/issues"
   },
   "homepage": "https://github.com/Jounathan-P/EventNest#readme",
-  "description": "",
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
-    "tailwindcss": "^4.0.1"
-  }
+    "tailwindcss": "^4.0.1",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "browserslist": "^4.24.4",
+    "caniuse-lite": "^1.0.30001696",
+    "electron-to-chromium": "^1.5.90",
+    "escalade": "^3.2.0",
+    "firebase": "^11.2.0",
+    "fraction.js": "^4.3.7",
+    "nanoid": "^3.3.8",
+    "node-releases": "^2.0.19",
+    "normalize-range": "^0.1.2",
+    "picocolors": "^1.1.1",
+    "postcss-value-parser": "^4.2.0",
+    "source-map-js": "^1.2.1",
+    "update-browserslist-db": "^1.1.2"
+  },
+  "description": ""
 }
