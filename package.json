@@ -19,8 +19,8 @@
   "homepage": "https://github.com/Jounathan-P/EventNest#readme",
   "devDependencies": {
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.1",
-    "tailwindcss": "^4.0.1",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.9",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
   },
