@@ -52,9 +52,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       if (e.target.matches('.add')){
         e.preventDefault()
           const name = document.getElementById('name').value;
-          const campus = document.getElementById('campus').value;
-          const school = document.getElementById('school').value;
-          const dOfBirth = document.getElementById('dOfBirth').value;
           const email = document.getElementById('email').value;
           const password = document.getElementById('password').value;
     
@@ -70,7 +67,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const docRef = doc(db, 'users', user.uid);
             setDoc(docRef, userData)
             .then(() => {
-              window.location.href = 'itemBrowser.html';
+              window.location.href = 'eventBrowser.html';
             })
             .catch(err => {
               console.log(err.message)
@@ -162,3 +159,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } 
     })
 })
+
+document.addEventListener("DOMContentLoaded", function () {
+  const menuToggle = document.getElementById("menu-toggle");
+  const menuClose = document.getElementById("menu-close");
+  const mobileMenu = document.getElementById("mobile-menu");
+  // Open menu
+  menuToggle.addEventListener("click", function () {
+    mobileMenu.classList.remove("hidden");
+  });
+  // Close menu
+  menuClose.addEventListener("click", function () {
+    mobileMenu.classList.add("hidden");
+  });
+  // Close menu when clicking outside of it
+  mobileMenu.addEventListener("click", function (event) {
+    if (event.target === mobileMenu) {
+      mobileMenu.classList.add("hidden");
+    }
+  });
+});
