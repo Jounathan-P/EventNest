@@ -4,7 +4,6 @@ import {
   getFirestore, collection, onSnapshot,
   addDoc, deleteDoc, doc,
   query, where,
-  orderBy, serverTimestamp,
   updateDoc, getDoc, setDoc
 } from 'firebase/firestore'
 import {
@@ -46,12 +45,43 @@ onSnapshot(colRef, (snapshot) => {
   console.log(users)
 })
 
+document.addEventListener("DOMContentLoaded", function () {
+  const menuToggle = document.getElementById("menu-toggle");
+  const menuClose = document.getElementById("menu-close");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  if (menuToggle && menuClose && mobileMenu) {
+    // Open menu
+    menuToggle.addEventListener("click", function () {
+      mobileMenu.classList.remove("hidden");
+      mobileMenu.classList.add("flex"); // Ensures visibility
+    });
+
+    // Close menu
+    menuClose.addEventListener("click", function () {
+      mobileMenu.classList.add("hidden");
+      mobileMenu.classList.remove("flex");
+    });
+
+    // Close menu when clicking outside of the white menu box
+    mobileMenu.addEventListener("click", function (event) {
+      if (event.target === mobileMenu) {
+        mobileMenu.classList.add("hidden");
+        mobileMenu.classList.remove("flex");
+      }
+    });
+  } else {
+    console.error("One or more menu elements not found. Check your HTML IDs.");
+  }
+});
+
 // adding user docs
 document.addEventListener('DOMContentLoaded', (event) => {
     document.body.addEventListener('submit', (e) => {
       if (e.target.matches('.add')){
         e.preventDefault()
           const name = document.getElementById('name').value;
+          const stuId = document.getElementById('stuID').value;
           const email = document.getElementById('email').value;
           const password = document.getElementById('password').value;
     
@@ -60,7 +90,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const user = cred.user;
             const userData = {
               email: email,
-              name: name  
+              name: name,
+              stuId: stuId
             };
             console.log('user created:', cred.user)
             localStorage.setItem('loggedInUserId', user.uid);
@@ -85,7 +116,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
     })
 })    
+// Handle sign-up for all forms
+document.querySelectorAll(".signup-form").forEach(form => {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    
+    const email = form.querySelector("input[type='email']").value;
+    const password = form.querySelector("input[type='password']").value;
 
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      alert(`Sign-up successful! Welcome, ${userCredential.user.email}`);
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  });
+});
 // signing users up
 document.addEventListener('DOMContentLoaded', (event) => {
     document.body.addEventListener('submit', (e) => {
@@ -159,23 +205,3 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } 
     })
 })
-
-document.addEventListener("DOMContentLoaded", function () {
-  const menuToggle = document.getElementById("menu-toggle");
-  const menuClose = document.getElementById("menu-close");
-  const mobileMenu = document.getElementById("mobile-menu");
-  // Open menu
-  menuToggle.addEventListener("click", function () {
-    mobileMenu.classList.remove("hidden");
-  });
-  // Close menu
-  menuClose.addEventListener("click", function () {
-    mobileMenu.classList.add("hidden");
-  });
-  // Close menu when clicking outside of it
-  mobileMenu.addEventListener("click", function (event) {
-    if (event.target === mobileMenu) {
-      mobileMenu.classList.add("hidden");
-    }
-  });
-});

@@ -6,51 +6,104 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css" rel="stylesheet">
-    <link href="./output.css" rel="stylesheet">
     <script src="https://unpkg.com/lodash@4.17.20"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Sign Up</title>
 </head>
 
-<body>
-    <div class="signup-container">
-    <h2>Sign Up</h2>
-    <form class="add">
-        <!-- Name Input -->
-        <label for="name">Name:</label>
-        <input type="text" name="name" id="name" placeholder="John Doe">
+<body class="flex items-center justify-center min-h-screen bg-gray-100 relative">
+ 
+  <!-- Background-->
+  <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+    <div class="relative left-[calc(50%-176px)] aspect-[1155/678] w-[578px] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#4CAF50] to-[#2E7D32] opacity-60 sm:left-[calc(50%-480px)] sm:w-[1155px]" 
+    style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+    </div>
+    <div class="absolute left-1/3 top-1/2 w-[500px] h-[400px] -translate-x-1/2 rotate-[15deg] 
+                bg-green-300 opacity-50 blur-2xl">
+    </div>
+  </div>
 
-        <!-- Campus Input -->
-        <label for="campus">Campus:</label>
-        <input type="text" name="campus" id="campus" placeholder="Main Campus">
+  <!-- Sign Up Box -->
+  <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold text-center text-green-600">EventNest Sign Up</h2>
+    <!-- Tabs -->
+    <div class="mt-4 flex justify-between border-b">
+        <button class="tab-btn px-4 py-2 text-gray-600 hover:text-green-600 focus:outline-none border-b-2 border-transparent font-medium"
+          data-target="student">Student</button>
+        <button class="tab-btn px-4 py-2 text-gray-600 hover:text-green-600 focus:outline-none border-b-2 border-transparent font-medium"
+          data-target="organizer">Organizer</button>
+        <button class="tab-btn px-4 py-2 text-gray-600 hover:text-green-600 focus:outline-none border-b-2 border-transparent font-medium"
+          data-target="admin">Admin</button>
+    </div>
 
-        <!-- School of Study Input -->
-        <label for="school">School:</label>
-        <input type="text" name="school" id="school" placeholder="School of Business">
+    <!-- Forms -->
+    <div class="add mt-4">
+      <!-- Student Form -->
+      <form id="student" class="signup-form">
+        <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded mt-2">
+        <input type="text" id="stuID" placeholder="Student ID" class="w-full p-2 border rounded mt-2">
+        <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
+        <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
+        <button class="w-full bg-green-500 text-white p-2 rounded mt-4">Sign Up</button>
+      </form>
 
-        <!-- Contact Number Input -->
-        <label for="phone">Contact Number:</label>
-        <input type="text" name="phone" id="phone" placeholder="(123)456-7890">
+      <!-- Organizer Form -->
+      <form id="organizer" class="signup-form hidden">
+        <input type="text" placeholder="Organization Name" class="w-full p-2 border rounded mt-2">
+        <input type="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
+        <input type="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
+        <button class="w-full bg-green-500 text-white p-2 rounded mt-4">Sign Up</button>
+      </form>
 
-        <!-- Date of Birth Input -->
-        <label for="dOfBirth">DOB:</label>
-        <input type="date" name="dOfBirth" id="dOfBirth" placeholder="MM-DD-YYYY">
+      <!-- Admin Form -->
+      <form id="admin" class="signup-form hidden">
+        <input type="text" placeholder="Admin Name" class="w-full p-2 border rounded mt-2">
+        <input type="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
+        <input type="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
+        <button class="w-full bg-green-500 text-white p-2 rounded mt-4">Sign Up</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Background -->
+  <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+    <div class="relative left-[calc(50%+48px)] aspect-[1155/678] w-[578px] -translate-x-1/2 bg-gradient-to-tr from-[#4CAF50] to-[#2E7D32] opacity-50 sm:left-[calc(50%+576px)] sm:w-[1155px]" 
+    style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+  </div>
+  <div class="absolute left-1/3 top-1/2 w-[500px] h-[400px] -translate-x-1/2 rotate-[15deg] 
+                bg-green-300 opacity-50 blur-2xl">
+    </div>
+  </div>
+  <script>
+    // Tab functionality
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const forms = document.querySelectorAll(".signup-form");
 
-        <!-- Short Bio Input -->
-        <label for="bio">About Me:</label>
-        <input type="text" name="bio" id="bio" placeholder="A short paragraph introducing yourself">      
+    tabButtons.forEach(button => {
+      button.addEventListener("click", function() {
+        const target = this.getAttribute("data-target");
 
-        <!-- Email Input -->
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email">
+        // Hide all forms
+        forms.forEach(form => form.classList.add("hidden"));
 
-        <!-- Password Input -->
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password">
-        
-        <!-- Submit Button -->
-        <button>Sign Up</button>
-    </form>
+        // Remove active state from all tabs
+        tabButtons.forEach(btn => {
+          btn.classList.remove("text-green-600", "border-green-500", "font-bold");
+          btn.classList.add("text-gray-600", "border-transparent", "font-medium");
+        });
 
+        // Show selected form
+        document.getElementById(target).classList.remove("hidden");
+
+        // Highlight the selected tab
+        this.classList.add("text-green-600", "border-green-500", "font-bold");
+        this.classList.remove("text-gray-600", "border-transparent", "font-medium");
+      });
+    });
+
+    // Set default active tab
+    tabButtons[0].click();
+  </script>
     <script src="/dist/bundle.js"></script>
 </body>
 </html>
