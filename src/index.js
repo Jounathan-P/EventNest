@@ -1,18 +1,16 @@
-// Import the functions you need from the SDKs
-import { initializeApp } from 'firebase/app'
+// Import Firebase SDKs
+import { initializeApp } from 'firebase/app';
 import {
   getFirestore, collection, onSnapshot,
-  addDoc, deleteDoc, doc,
-  query, where,
+  addDoc, deleteDoc, doc, query, where,
   updateDoc, getDoc, setDoc
-} from 'firebase/firestore'
+} from 'firebase/firestore';
 import {
-  getAuth,
-  createUserWithEmailAndPassword, 
-  signOut, signInWithEmailAndPassword,
-  onAuthStateChanged
-} from 'firebase/auth'
+  getAuth, createUserWithEmailAndPassword,
+  signOut, signInWithEmailAndPassword, onAuthStateChanged
+} from 'firebase/auth';
 
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCGtWIzrefSz12n86tWzbHnetUnHT3QFo8",
   authDomain: "eventnest-52826.firebaseapp.com",
@@ -23,185 +21,177 @@ const firebaseConfig = {
   measurementId: "G-8FXCZ7KZV3"
 };
 
-// init firebase
-initializeApp(firebaseConfig)
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
 
-// init services
-const db = getFirestore()
-const auth = getAuth()
+// Collection Reference
+const usersCollection = collection(db, 'users');
 
-// collection ref
-const colRef = collection(db, 'users')
+// Realtime Snapshot Listener
+onSnapshot(usersCollection, (snapshot) => {
+  const users = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  console.log(users);
+});
 
-// queries
-const q = query(colRef, where("name", "==", "John Doe"), orderBy('createdAt'))
-
-// realtime collection data
-onSnapshot(colRef, (snapshot) => {
-  let users = []
-  snapshot.docs.forEach(doc => {
-    users.push({ ...doc.data(), id: doc.id })
-  })
-  console.log(users)
-})
-
-document.addEventListener("DOMContentLoaded", function () {
+// Menu Toggle Functionality
+window.onload = function () {
   const menuToggle = document.getElementById("menu-toggle");
   const menuClose = document.getElementById("menu-close");
   const mobileMenu = document.getElementById("mobile-menu");
 
   if (menuToggle && menuClose && mobileMenu) {
-    // Open menu
-    menuToggle.addEventListener("click", function () {
+    menuToggle.addEventListener("click", () => {
       mobileMenu.classList.remove("hidden");
-      mobileMenu.classList.add("flex"); // Ensures visibility
+      mobileMenu.classList.add("flex");
     });
 
-    // Close menu
-    menuClose.addEventListener("click", function () {
+    menuClose.addEventListener("click", () => {
       mobileMenu.classList.add("hidden");
       mobileMenu.classList.remove("flex");
     });
 
-    // Close menu when clicking outside of the white menu box
-    mobileMenu.addEventListener("click", function (event) {
+    mobileMenu.addEventListener("click", (event) => {
       if (event.target === mobileMenu) {
         mobileMenu.classList.add("hidden");
         mobileMenu.classList.remove("flex");
       }
     });
-  } else {
-    console.error("One or more menu elements not found. Check your HTML IDs.");
+  }
+};
+
+// Tab Switching for Sign-Up
+const tabButtons = document.querySelectorAll(".tab-btn");
+const forms = document.querySelectorAll(".signup-form");
+
+tabButtons.forEach(button => {
+  button.addEventListener("click", function () {
+    const target = this.getAttribute("data-target");
+
+    // Hide all forms
+    forms.forEach(form => form.classList.add("hidden"));
+
+    // Update tab UI state
+    tabButtons.forEach(btn => btn.classList.remove("text-green-600", "border-green-500", "font-bold"));
+    this.classList.add("text-green-600", "border-green-500", "font-bold");
+
+    // Show selected form
+    document.getElementById(target).classList.remove("hidden");
+  });
+});
+
+// Set default active tab
+if (tabButtons.length) tabButtons[0].click();
+
+// Sign-Up Form Submission
+document.addEventListener('submit', async (e) => {
+  if (e.target.matches('.signup-form')) {
+    e.preventDefault();
+
+    const form = e.target;
+    const role = form.getAttribute("data-role");
+    const name = form.querySelector("[id^='name']").value;
+    const email = form.querySelector("[id^='email']").value;
+    const password = form.querySelector("[id^='password']").value;
+    const stuId = role === "student" ? document.getElementById("stuID")?.value : null;
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = cred.user;
+
+      // Store user info in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name, email, role, stuId, createdAt: new Date()
+      });
+
+      console.log("User Created:", user);
+      localStorage.setItem('loggedInUserId', user.uid);
+      redirectUser(role);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      alert(error.message);
+    }
   }
 });
 
-// adding user docs
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.body.addEventListener('submit', (e) => {
-      if (e.target.matches('.add')){
-        e.preventDefault()
-          const name = document.getElementById('name').value;
-          const stuId = document.getElementById('stuID').value;
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-    
-          createUserWithEmailAndPassword(auth, email, password)
-          .then(cred => {
-            const user = cred.user;
-            const userData = {
-              email: email,
-              name: name,
-              stuId: stuId
-            };
-            console.log('user created:', cred.user)
-            localStorage.setItem('loggedInUserId', user.uid);
-            const docRef = doc(db, 'users', user.uid);
-            setDoc(docRef, userData)
-            .then(() => {
-              window.location.href = 'eventBrowser.html';
-            })
-            .catch(err => {
-              console.log(err.message)
-            });
-        })
-        .catch(err => {
-            console.log(err.message)
-            const errMsg = error.code;
-            if(errMsg == 'auth/email-already-in-use'){
-              alert('Email address already exists!')
-            } else {
-              alert('Unable to create user')
-            }
-        })
-    }
-    })
-})    
-// Handle sign-up for all forms
-document.querySelectorAll(".signup-form").forEach(form => {
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    
-    const email = form.querySelector("input[type='email']").value;
-    const password = form.querySelector("input[type='password']").value;
+// Redirect Users Based on Role
+function redirectUser(role) {
+  const pages = {
+    student: "studentDashboard.html",
+    organizer: "organizerDashboard.html",
+    admin: "adminDashboard.html"
+  };
+  window.location.href = pages[role] || "dashboard.html";
+}
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      alert(`Sign-up successful! Welcome, ${userCredential.user.email}`);
-    } catch (error) {
-      alert("Error: " + error.message);
+// Login Functionality
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.addEventListener("submit", async (e) => {
+    if (e.target.matches('.login')) {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const user = cred.user;
+
+        // Fetch user role from Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          redirectUser(userDoc.data().role);
+        } else {
+          console.error("User data not found.");
+        }
+      } catch (error) {
+        console.error(error.message);
+        alert("Invalid login credentials");
+      }
+    }
+  });
+
+  // Logout Functionality
+  document.body.addEventListener("click", async (e) => {
+    if (e.target.matches('.logout')) {
+      try {
+        await signOut(auth);
+        console.log('User signed out');
+      } catch (error) {
+        console.error(error.message);
+      }
     }
   });
 });
-// signing users up
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.body.addEventListener('submit', (e) => {
-      if (e.target.matches('.signup')){
-      e.preventDefault()
-  
-      const email = e.target.email.value
-      const password = e.target.password.value
-  
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(cred => {
-          console.log('user created:', cred.user)
-          e.target.reset()
-        })
-        .catch(err => {
-          console.log(err.message)
-        })
-      }
-    })
-  })
-  
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.body.addEventListener('submit', (e) => {
-        if (e.target.matches('.signup')){
-            e.preventDefault()
 
-            const email = e.target.email.value
-            const password = e.target.password.value
+// Authentication State Change Listener
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const uid = user.uid;
+    console.log("User UID:", uid);
 
-            createUserWithEmailAndPassword(auth, email, password)
-            .then(cred => {
-                console.log('user created:', cred.user)
-                e.target.reset()
-            })
-            .catch(err => {
-                console.log(err.message)
-            })
-        }
-    })
-    
-    // log in and out
-    document.body.addEventListener('click', (e) => { 
-        if (e.target.matches('.logout')) { 
-            e.preventDefault()
-            signOut(auth) 
-            .then(() => { 
-            console.log('You have been signed out'); 
-            }) 
-            .catch((err) => { 
-            console.log(err.message); 
-            })
-        } 
-    })
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      loadDashboard(userDoc.data().role);
+    } else {
+      console.log("User data not found.");
+    }
+  } else {
+    window.location.href = "login.html"; // Redirect to login if not authenticated
+  }
+});
 
-    const loginForm = document.querySelector('.login')
-    document.body.addEventListener('submit', (e) => { 
-        if (e.target.matches('.login')) { 
-            e.preventDefault(); 
-            const email = e.target.email.value; 
-            const password = e.target.password.value; 
-            signInWithEmailAndPassword(auth, email, password) 
-            .then((cred) => { 
-            console.log('user logged in: ', cred.user); 
-            const user = cred.user;
-            localStorage.setItem('loggedInUserId', user.uid);
-            window.location.href = 'homepage.html'; // Redirect to homepage after login
-            }) 
-            .catch((err) => { 
-            console.log(err.message); 
-            })
-        } 
-    })
-})
+// Load Dashboard Based on User Role
+function loadDashboard(role) {
+  document.getElementById("dashboard-student")?.classList.add("hidden");
+  document.getElementById("dashboard-organizer")?.classList.add("hidden");
+  document.getElementById("dashboard-admin")?.classList.add("hidden");
+
+  if (role === "student") {
+    document.getElementById("dashboard-student")?.classList.remove("hidden");
+  } else if (role === "organizer") {
+    document.getElementById("dashboard-organizer")?.classList.remove("hidden");
+  } else if (role === "admin") {
+    document.getElementById("dashboard-admin")?.classList.remove("hidden");
+  }
+}
