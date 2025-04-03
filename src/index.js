@@ -84,36 +84,134 @@ tabButtons.forEach(button => {
 // Set default active tab
 if (tabButtons.length) tabButtons[0].click();
 
+// adding user docs
+document.addEventListener('DOMContentLoaded', (event) => {
+  document.body.addEventListener('submit', (e) => {
+    if (e.target.matches('.add')){
+      e.preventDefault()
+      const name = document.getElementById('name').value;
+      const stuID = document.getElementById('stuID').value;
+      const role = document.getElementById('role').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+      .then(cred => {
+        const user = cred.user;
+        const userData = {
+          email: email,
+          name: name
+        };
+        console.log('user created:', cred.user)
+        localStorage.setItem('loggedInUserId', user.uid);
+        const docRef = doc(db, 'users', user.uid);
+        setDoc(docRef, userData)
+        .then(() => {
+          window.location.href = 'eventBrowser.html';
+        })
+        .catch(err => {
+          console.log(err.message)
+        });
+      })
+      .catch(err => {
+        console.log(err.message)
+        const errMsg = error.code;
+        if(errMsg == 'auth/email-already-in-use'){
+          alert('Email address already exists!')
+        } else {
+          alert('Unable to create user')
+        }
+      })
+    }
+  })
+})
+
+//deleting docs
+document.addEventListener('DOMContentLoaded', (event) => {
+  document.body.addEventListener('submit', (e) => {
+    if (e.target.matches('.delete')){
+      e.preventDefault()
+  
+    const docRef = doc(db, 'users', deleteUserForm.id.value)
+    
+    deleteDoc(docRef)
+      .then(() => {
+        deleteUserForm.reset()
+      })
+    }
+  })
+})
+
+// updating a document
+document.addEventListener('DOMContentLoaded', (event) => {
+  document.body.addEventListener('submit', (e) => {
+    if (e.target.matches('.update')){
+      e.preventDefault()
+      let docRef = doc(db, 'users', updateForm.id.value)
+  
+      updateDoc(docRef, {
+        name: 'updated name'
+      })
+      .then(() => {
+        updateForm.reset()
+      })
+    }
+  })
+})
+
 // Sign-Up Form Submission
-document.addEventListener('submit', async (e) => {
-  if (e.target.matches('.signup-form')) {
+document.addEventListener('DOMContentLoaded', (event) => {
+  document.body.addEventListener('submit', (e) => {
+    if (e.target.matches('.signup')){
     e.preventDefault();
 
-    const form = e.target;
-    const role = form.getAttribute("data-role");
-    const name = form.querySelector("[id^='name']").value;
-    const email = form.querySelector("[id^='email']").value;
-    const password = form.querySelector("[id^='password']").value;
-    const stuId = role === "student" ? document.getElementById("stuID")?.value : null;
+    const email = e.target.email.value
+    const password = e.target.password.value
 
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      const user = cred.user;
-
-      // Store user info in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        name, email, role, stuId, createdAt: new Date()
-      });
-
-      console.log("User Created:", user);
-      localStorage.setItem('loggedInUserId', user.uid);
-      redirectUser(role);
-    } catch (error) {
-      console.error("Error creating user:", error);
-      alert(error.message);
+    createUserWithEmailAndPassword(auth, email, password)
+    .then(cred => {
+      console.log('user created:', cred.user)
+      e.target.reset()
+    })
+    .catch(err => {
+      console.log(err.message)
+    })
     }
+  })
+
+  //log in and out
+document.body.addEventListener('click', (e) => {
+  if (e.target.matches('.logout')) {
+    e.preventDefault()
+    signOut(auth)
+    .then(() => {
+      console.log('You have been signed out');
+    })
+    .catch((err) => {
+      console.log(err.message);
+    })
   }
-});
+})
+
+const loginForm = document.querySelector('.login')
+document.body.addEventListener('submit', (e) => { 
+  if (e.target.matches('.login')) { 
+    e.preventDefault(); 
+    const email = e.target.email.value; 
+    const password = e.target.password.value; 
+    signInWithEmailAndPassword(auth, email, password) 
+    .then((cred) => { 
+      console.log('user logged in: ', cred.user); 
+      const user = cred.user;
+      localStorage.setItem('loggedInUserId', user.uid);
+      window.location.href = 'eventBrowser.html'; // Redirect to browser after login
+    }) 
+    .catch((err) => { 
+      console.log(err.message); 
+    })
+  } 
+})
+})
 
 // Redirect Users Based on Role
 function redirectUser(role) {
