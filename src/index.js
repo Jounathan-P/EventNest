@@ -140,7 +140,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Fetch user role from Firestore
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
+          console.log('user logged in: ', cred.user); 
+          const user = cred.user;
+          localStorage.setItem('loggedInUserId', user.uid);
           redirectUser(userDoc.data().role);
+          window.location.href = 'dashboard.html'; // Redirect to dashboard after login
         } else {
           console.error("User data not found.");
         }
