@@ -91,7 +91,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       e.preventDefault()
       const name = document.getElementById('name').value;
       const stuID = document.getElementById('stuID').value;
-      const role = document.getElementById('role').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
@@ -107,7 +106,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const docRef = doc(db, 'users', user.uid);
         setDoc(docRef, userData)
         .then(() => {
-          window.location.href = 'eventBrowser.html';
+          window.location.href = 'dashboard.html';
         })
         .catch(err => {
           console.log(err.message)
@@ -150,7 +149,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       let docRef = doc(db, 'users', updateForm.id.value)
   
       updateDoc(docRef, {
-        name: 'updated name'
+        name: 'updated name',
+        id: 'updated ID'
       })
       .then(() => {
         updateForm.reset()
@@ -204,7 +204,7 @@ document.body.addEventListener('submit', (e) => {
       console.log('user logged in: ', cred.user); 
       const user = cred.user;
       localStorage.setItem('loggedInUserId', user.uid);
-      window.location.href = 'eventBrowser.html'; // Redirect to browser after login
+      window.location.href = 'dashboard.html'; // Redirect to dashboard after login
     }) 
     .catch((err) => { 
       console.log(err.message); 
