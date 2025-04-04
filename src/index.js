@@ -35,6 +35,7 @@ onSnapshot(usersCollection, (snapshot) => {
   console.log(users);
 });
 
+/* Menu Section */
 // Menu Toggle Functionality
 window.onload = function () {
   const menuToggle = document.getElementById("menu-toggle");
@@ -61,6 +62,7 @@ window.onload = function () {
   }
 };
 
+/* Sign Up and Login Section */
 // Tab Switching for Sign-Up
 const tabButtons = document.querySelectorAll(".tab-btn");
 const forms = document.querySelectorAll(".signup-form");
@@ -90,23 +92,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
     if (e.target.matches('.add')){
       e.preventDefault()
       const name = document.getElementById('name').value;
-      const stuID = document.getElementById('stuID').value;
+      const stuIDInput = document.getElementById('stuID').value;
+      const role = form.getAttribute("data-role");
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const stuID = role === "student" && stuIDInput ? stuIDInput.value : null;
 
       createUserWithEmailAndPassword(auth, email, password)
       .then(cred => {
         const user = cred.user;
         const userData = {
           email: email,
-          name: name
+          name: name,
+          role: role,
+          stuID: stuID || null,
+          createdAt: new Date()
         };
-        console.log('user created:', cred.user)
+        console.log('user created with role: ', role, '/ and credentials: ', cred.user)
         localStorage.setItem('loggedInUserId', user.uid);
         const docRef = doc(db, 'users', user.uid);
         setDoc(docRef, userData)
         .then(() => {
-          window.location.href = 'dashboard.html';
+          redirectUser(role);
         })
         .catch(err => {
           console.log(err.message)
@@ -125,7 +132,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   })
 })
 
-//deleting docs
+// deleting docs
 document.addEventListener('DOMContentLoaded', (event) => {
   document.body.addEventListener('submit', (e) => {
     if (e.target.matches('.delete')){
@@ -179,7 +186,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   })
 
-  //log in and out
+  // log in and out
 document.body.addEventListener('click', (e) => {
   if (e.target.matches('.logout')) {
     e.preventDefault()
@@ -213,7 +220,7 @@ document.body.addEventListener('submit', (e) => {
 })
 })
 
-// Redirect Users Based on Role
+// Redirect Users Immediately After Sign-Up Based on Role
 function redirectUser(role) {
   const pages = {
     student: "studentDashboard.html",
@@ -223,77 +230,110 @@ function redirectUser(role) {
   window.location.href = pages[role] || "dashboard.html";
 }
 
-// Login Functionality
-document.addEventListener("DOMContentLoaded", () => {
-  document.body.addEventListener("submit", async (e) => {
-    if (e.target.matches('.login')) {
-      e.preventDefault();
-      const email = e.target.email.value;
-      const password = e.target.password.value;
-
-      try {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        const user = cred.user;
-
-        // Fetch user role from Firestore
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          console.log('user logged in: ', cred.user); 
-          const user = cred.user;
-          localStorage.setItem('loggedInUserId', user.uid);
-          redirectUser(userDoc.data().role);
-          window.location.href = 'dashboard.html'; // Redirect to dashboard after login
-        } else {
-          console.error("User data not found.");
-        }
-      } catch (error) {
-        console.error(error.message);
-        alert("Invalid login credentials");
-      }
-    }
-  });
-
-  // Logout Functionality
-  document.body.addEventListener("click", async (e) => {
-    if (e.target.matches('.logout')) {
-      try {
-        await signOut(auth);
-        console.log('User signed out');
-      } catch (error) {
-        console.error(error.message);
-      }
-    }
-  });
-});
-
-// Authentication State Change Listener
+/*Dashboard Section */
+// Show Relevant Dashboard After Login Based on Role
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
     console.log("User UID:", uid);
 
-    const userDoc = await getDoc(doc(db, "users", uid));
-    if (userDoc.exists()) {
-      loadDashboard(userDoc.data().role);
+    try {
+      const userDoc = await getDoc(doc(db, "users", uid));
+      if (userDoc.exists()) {
+        const role = userDoc.data().role;
+        loadDashboard(role);
+      } else {
+        console.error("No user data found in Firestore.");
+        // Optionally redirect or show error message
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error.message);
+    }
+
+  } else {
+    window.location.href = "loginPage.html"; // Not logged in
+  }
+});
+
+// Toggle Dashboard Sections Based on Role
+function loadDashboard(role) {
+  const dashboards = {
+    student: document.getElementById("dashboard-student"),
+    organizer: document.getElementById("dashboard-organizer"),
+    admin: document.getElementById("dashboard-admin"),
+  };
+
+  Object.values(dashboards).forEach(section => section?.classList.add("hidden"));
+
+  if (dashboards[role]) {
+    dashboards[role].classList.remove("hidden");
+  } else {
+    console.warn("No dashboard found for role:", role);
+  }
+}
+
+// Wait for authentication state change
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const uid = user.uid;
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      displayUserProfile(userData);
+      loadUserEvents(uid);
     } else {
       console.log("User data not found.");
     }
   } else {
-    window.location.href = "login.html"; // Redirect to login if not authenticated
+    window.location.href = "loginPage.html"; // Redirect if not logged in
   }
 });
 
-// Load Dashboard Based on User Role
-function loadDashboard(role) {
-  document.getElementById("dashboard-student")?.classList.add("hidden");
-  document.getElementById("dashboard-organizer")?.classList.add("hidden");
-  document.getElementById("dashboard-admin")?.classList.add("hidden");
+// Function to display user profile
+function displayUserProfile(userData) {
+  document.getElementById("user-name").textContent = userData.name;
+  document.getElementById("user-email").textContent = userData.email;
+  document.getElementById("user-role").textContent = userData.role;
+  document.getElementById(`dashboard-${userData.role}`).classList.remove("hidden");
+}
 
-  if (role === "student") {
-    document.getElementById("dashboard-student")?.classList.remove("hidden");
-  } else if (role === "organizer") {
-    document.getElementById("dashboard-organizer")?.classList.remove("hidden");
-  } else if (role === "admin") {
-    document.getElementById("dashboard-admin")?.classList.remove("hidden");
-  }
+// Function to load favorited and upcoming/past events
+async function loadUserEvents(uid) {
+  const favoritesRef = collection(db, "favorites");
+  const favoritesQuery = query(favoritesRef, where("userId", "==", uid));
+  const favoriteDocs = await getDoc(favoritesQuery);
+
+  const upcomingEventsRef = collection(db, "events");
+  const upcomingQuery = query(upcomingEventsRef, where("attendees", "array-contains", uid));
+  const eventDocs = await getDoc(upcomingQuery);
+
+  const currentDate = new Date();
+
+  // Populate favorite events
+  const favoritesContainer = document.getElementById("favorited-events");
+  favoritesContainer.innerHTML = "";
+  favoriteDocs.forEach(doc => {
+    const event = doc.data();
+    favoritesContainer.innerHTML += `<p>${event.title}</p>`;
+  });
+
+  // Populate upcoming and past events
+  const upcomingContainer = document.getElementById("upcoming-events");
+  const pastContainer = document.getElementById("past-events");
+  upcomingContainer.innerHTML = "";
+  pastContainer.innerHTML = "";
+
+  eventDocs.forEach(doc => {
+    const event = doc.data();
+    const eventDate = new Date(event.date);
+    const eventElement = `<p>${event.title} - ${event.date}</p>`;
+    
+    if (eventDate >= currentDate) {
+      upcomingContainer.innerHTML += eventElement;
+    } else {
+      pastContainer.innerHTML += eventElement;
+    }
+  });
 }

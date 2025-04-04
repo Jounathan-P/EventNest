@@ -15,8 +15,28 @@
   
     <!-- Student Dashboard -->
     <div id="dashboard-student" class="hidden p-6 bg-white shadow-md rounded-lg">
-      <h2 class="text-xl font-semibold text-green-500">Welcome, Student</h2>
-      <p>Here you can browse upcoming events.</p>
+        <!-- Profile Section -->
+        <div id="profile-section" class="p-6 bg-white shadow-md rounded-lg mt-4">
+          <h2 class="text-xl font-semibold text-green-500">User Profile</h2>
+          <p><strong>Name:</strong> <span id="user-name"></span></p>
+          <p><strong>Email:</strong> <span id="user-email"></span></p>
+          <p><strong>Role:</strong> <span id="user-role"></span></p>
+      </div>
+      
+      <!-- Favorited Events -->
+      <div id="favorited-events" class="p-6 bg-white shadow-md rounded-lg mt-4">
+          <h2 class="text-xl font-semibold text-green-500">Favorited Events</h2>
+          <ul id="favorite-list" class="list-disc pl-5"></ul>
+      </div>
+      
+      <!-- Upcoming and Past Events -->
+      <div id="events-section" class="p-6 bg-white shadow-md rounded-lg mt-4">
+          <h2 class="text-xl font-semibold text-green-500">Your Events</h2>
+          <h3 class="text-lg font-semibold mt-2">Upcoming Events</h3>
+          <ul id="upcoming-events" class="list-disc pl-5"></ul>
+          <h3 class="text-lg font-semibold mt-2">Past Events</h3>
+          <ul id="past-events" class="list-disc pl-5"></ul>
+      </div>
     </div>
   
     <!-- Organizer Dashboard -->

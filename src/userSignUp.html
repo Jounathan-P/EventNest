@@ -38,7 +38,7 @@
     <!-- Forms -->
     <div class="mt-4" class="signup-form">
       <!-- Student Form -->
-      <form id="student" class="add">
+      <form id="student" data-role="student" class="add">
         <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded mt-2">
         <input type="text" id="stuID" placeholder="Student ID" class="w-full p-2 border rounded mt-2">
         <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
@@ -47,7 +47,7 @@
       </form> 
 
       <!-- Organizer Form -->
-      <form id="organizer" class="signup-form hidden">
+      <form id="organizer" data-role="organizer" class="add hidden">
         <input type="text" placeholder="Organization Name" class="w-full p-2 border rounded mt-2">
         <input type="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
         <input type="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
@@ -55,7 +55,7 @@
       </form>
 
       <!-- Admin Form -->
-      <form id="admin" class="signup-form hidden">
+      <form id="admin" data-role="admin" class="add hidden">
         <input type="text" placeholder="Admin Name" class="w-full p-2 border rounded mt-2">
         <input type="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
         <input type="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
