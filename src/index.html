@@ -108,7 +108,44 @@
         </div>
       </div>
     </div>
+    <section id="featured-events" class="mt-20 px-6 lg:px-20">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Featured Events</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="featured-event opacity-0 transform translate-y-10 transition duration-700 ease-in-out bg-white p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Event One</h3>
+          <p class="text-gray-600 mt-2">Details about event one go here.</p>
+        </div>
+        <div class="featured-event opacity-0 transform translate-y-10 transition duration-700 ease-in-out bg-white p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Event Two</h3>
+          <p class="text-gray-600 mt-2">Details about event two go here.</p>
+        </div>
+        <!-- Add more event cards as needed -->
+      </div>
+    </section>
   </div>
   <script src="/dist/bundle.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove("opacity-0", "translate-y-10");
+            entry.target.classList.add("opacity-100", "translate-y-0");
+          } else {
+            entry.target.classList.remove("opacity-100", "translate-y-0");
+            entry.target.classList.add("opacity-0", "translate-y-10");
+          }
+        });
+      }, {
+        threshold: 0.1
+      });
+  
+      document.querySelectorAll(".featured-event").forEach((el) => {
+        // Set initial state
+        el.classList.add("opacity-0", "translate-y-10", "transition", "duration-700", "ease-in-out");
+        observer.observe(el);
+      });
+    });
+  </script>  
 </body>
 </html>
