@@ -38,8 +38,13 @@
       </div>
       <div class="mt-auto space-y-3">
         <a href="#" class="block text-sm text-gray-300 hover:underline">Settings</a>
-        <a href="#" class="block text-sm text-gray-300 hover:underline">Logout</a>
-      </div>
+            <!-- Conditional Login/Logout Buttons -->
+            <div class="d-flex align-items-center">
+              <span id="user-greeting" class="text-light me-3"></span>
+              <!-- Dynamic Login/Logout Button -->
+              <div id="auth-button-container" class="dynamicLogin"></div>
+          </div>
+        </div>
     </aside>   
     <!-- Student Dashboard -->
     <div id="dashboard-student" class="hidden p-6 w-full bg-white shadow-md rounded-lg">

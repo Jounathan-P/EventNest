@@ -36,9 +36,9 @@
     </div>
 
     <!-- Forms -->
-    <div class="mt-4" class="signup-form">
+    <div class="mt-4" class="">
       <!-- Student Form -->
-      <form id="student" data-role="student" class="add">
+      <form id="student" data-role="student" class="add signup-form">
         <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded mt-2">
         <input type="text" id="stuID" placeholder="Student ID" class="w-full p-2 border rounded mt-2">
         <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
@@ -47,7 +47,7 @@
       </form> 
 
       <!-- Organizer Form -->
-      <form id="organizer" data-role="organizer" class="add hidden">
+      <form id="organizer" data-role="organizer" class="add hidden signup-form">
         <input type="text" placeholder="Organization Name" class="w-full p-2 border rounded mt-2">
         <input type="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
         <input type="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
@@ -55,7 +55,7 @@
       </form>
 
       <!-- Admin Form -->
-      <form id="admin" data-role="admin" class="add hidden">
+      <form id="admin" data-role="admin" class="add hidden signup-form">
         <input type="text" placeholder="Admin Name" class="w-full p-2 border rounded mt-2">
         <input type="email" placeholder="Email" class="w-full p-2 border rounded mt-2">
         <input type="password" placeholder="Password" class="w-full p-2 border rounded mt-2">
@@ -73,36 +73,6 @@
                 bg-green-300 opacity-50 blur-2xl">
     </div>
   </div>
-  <script>
-    // Tab functionality
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const forms = document.querySelectorAll(".signup-form");
-
-    tabButtons.forEach(button => {
-      button.addEventListener("click", function() {
-        const target = this.getAttribute("data-target");
-
-        // Hide all forms
-        forms.forEach(form => form.classList.add("hidden"));
-
-        // Remove active state from all tabs
-        tabButtons.forEach(btn => {
-          btn.classList.remove("text-green-600", "border-green-500", "font-bold");
-          btn.classList.add("text-gray-600", "border-transparent", "font-medium");
-        });
-
-        // Show selected form
-        document.getElementById(target).classList.remove("hidden");
-
-        // Highlight the selected tab
-        this.classList.add("text-green-600", "border-green-500", "font-bold");
-        this.classList.remove("text-gray-600", "border-transparent", "font-medium");
-      });
-    });
-
-    // Set default active tab
-    tabButtons[0].click();
-  </script>
     <script src="/dist/bundle.js"></script>
 </body>
 </html>

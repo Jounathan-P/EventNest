@@ -68,40 +68,52 @@ window.onload = function () {
 };
 
 /* Sign Up and Login Section */
-// Tab Switching for Sign-Up
+// Tab functionality
 const tabButtons = document.querySelectorAll(".tab-btn");
 const forms = document.querySelectorAll(".signup-form");
 
 tabButtons.forEach(button => {
-  button.addEventListener("click", function () {
+  button.addEventListener("click", function() {
     const target = this.getAttribute("data-target");
 
     // Hide all forms
     forms.forEach(form => form.classList.add("hidden"));
 
-    // Update tab UI state
-    tabButtons.forEach(btn => btn.classList.remove("text-green-600", "border-green-500", "font-bold"));
-    this.classList.add("text-green-600", "border-green-500", "font-bold");
+    // Remove active state from all tabs
+    tabButtons.forEach(btn => {
+      btn.classList.remove("text-green-600", "border-green-500", "font-bold");
+      btn.classList.add("text-gray-600", "border-transparent", "font-medium");
+    });
 
     // Show selected form
     document.getElementById(target).classList.remove("hidden");
+
+    // Highlight the selected tab
+    this.classList.add("text-green-600", "border-green-500", "font-bold");
+    this.classList.remove("text-gray-600", "border-transparent", "font-medium");
   });
 });
 
 // Set default active tab
-if (tabButtons.length) tabButtons[0].click();
+document.addEventListener("DOMContentLoaded", () => {
+  tabButtons[0]?.click(); // Optional chaining prevents error if tabButtons[0] is undefined
+});
 
 // adding user docs
 document.addEventListener('DOMContentLoaded', (event) => {
   document.body.addEventListener('submit', (e) => {
     if (e.target.matches('.add')){
       e.preventDefault()
+
+      const forms = e.target;
+      const role = forms.getAttribute("data-role");
+
       const name = document.getElementById('name').value;
       const stuIDInput = document.getElementById('stuID').value;
-      const role = form.getAttribute("data-role");
+      const stuID = role === "student" && stuIDInput ? stuIDInput.value : null;
+
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      const stuID = role === "student" && stuIDInput ? stuIDInput.value : null;
 
       createUserWithEmailAndPassword(auth, email, password)
       .then(cred => {
@@ -224,6 +236,39 @@ document.body.addEventListener('submit', (e) => {
   } 
 })
 })
+
+// Function to render the login/logout button based on auth state
+function renderAuthButton(user) {
+  const authButtonContainer = document.getElementById('auth-button-container')
+  if(!authButtonContainer){
+    console.warn("auth container not found on this page")
+    return
+  }
+  if (user) {
+    // If the user is logged in, show a Logout button
+    authButtonContainer.innerHTML = 
+      `<span class="me-3 text-light">Hello, ${user.email}</span>
+      <button class="btn btn-danger" id="logout">Logout</button>`;
+    // Add event listener for logout
+    document.getElementById('logout').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.reload(); // Reload the page after logout
+        window.location.href = 'index.html'; // Redirect to homepage after logout
+      }).catch((error) => {
+        console.error('Logout Error:', error);
+      })
+    })
+  } else {
+    // If the user is not logged in, show a Login button
+    authButtonContainer.innerHTML = `<a href="loginPage.html" class="btn btn-primary">Login</a>`;
+  }
+}    
+
+document.addEventListener('DOMContentLoaded', () => {
+  onAuthStateChanged(auth, (user) => {
+    renderAuthButton(user);
+  });
+});
 
 // Redirect Users Immediately After Sign-Up Based on Role
 function redirectUser(role) {
