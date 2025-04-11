@@ -252,7 +252,6 @@ function renderAuthButton(user) {
     // Add event listener for logout
     document.getElementById('logout').addEventListener('click', () => {
       signOut(auth).then(() => {
-        window.location.reload(); // Reload the page after logout
         window.location.href = 'index.html'; // Redirect to homepage after logout
       }).catch((error) => {
         console.error('Logout Error:', error);
@@ -265,8 +264,48 @@ function renderAuthButton(user) {
 }    
 
 document.addEventListener('DOMContentLoaded', () => {
-  onAuthStateChanged(auth, (user) => {
+  const isDashboard = window.location.pathname.includes('dashboard');
+
+  onAuthStateChanged(auth, async (user) => {
     renderAuthButton(user);
+
+    if(isDashboard && !user){
+      window.location.href = 'loginPage.html';
+      return;
+    }
+
+    if (isDashboard && user) {
+      const uid = user.uid;
+      const userDoc = await getDoc(doc(db, "users", uid));
+      if (userDoc.exists()) {
+        const role = userDoc.data().role;
+        loadDashboard(role);
+        displayUserProfile(userDoc.data());
+        loadUserEvents(uid);
+      }
+    }
+    
+    // Show Relevant Dashboard After Login Based on Role
+    if (user) {
+      const uid = user.uid;
+      console.log("User UID:", uid);
+  
+      try {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          const role = userDoc.data().role;
+          loadDashboard(role);
+        } else {
+          console.error("No user data found in Firestore.");
+          // Optionally redirect or show error message
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error.message);
+      }
+  
+    } else {
+      window.location.href = "loginPage.html"; // Not logged in
+    }
   });
 });
 
@@ -281,30 +320,6 @@ function redirectUser(role) {
 }
 
 /*Dashboard Section */
-// Show Relevant Dashboard After Login Based on Role
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const uid = user.uid;
-    console.log("User UID:", uid);
-
-    try {
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists()) {
-        const role = userDoc.data().role;
-        loadDashboard(role);
-      } else {
-        console.error("No user data found in Firestore.");
-        // Optionally redirect or show error message
-      }
-    } catch (error) {
-      console.error("Failed to fetch user data:", error.message);
-    }
-
-  } else {
-    window.location.href = "loginPage.html"; // Not logged in
-  }
-});
-
 // Toggle Dashboard Sections Based on Role
 function loadDashboard(role) {
   const dashboards = {
@@ -321,27 +336,6 @@ function loadDashboard(role) {
     console.warn("No dashboard found for role:", role);
   }
 }
-
-// Wait for authentication state change
-document.addEventListener('DOMContentLoaded', () => {
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const uid = user.uid;
-    const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
-      displayUserProfile(userData);
-      loadUserEvents(uid);
-    } else {
-      console.log("User data not found.");
-    }
-  } else {
-    window.location.href = "loginPage.html"; // Redirect if not logged in
-  }
-});
-});
 
  // Function to display user profile
  function displayUserProfile(userData) {
