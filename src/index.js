@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import {
   getFirestore, collection, onSnapshot,
   addDoc, deleteDoc, doc, query, where,
-  updateDoc, getDoc, setDoc
+  updateDoc, getDoc, setDoc, getDocs
 } from 'firebase/firestore';
 import {
   getAuth, createUserWithEmailAndPassword,
@@ -28,11 +28,16 @@ const auth = getAuth();
 
 // Collection Reference
 const usersCollection = collection(db, 'users');
+const eventsCollection = collection(db, 'events');
 
 // Realtime Snapshot Listener
 onSnapshot(usersCollection, (snapshot) => {
   const users = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   console.log(users);
+});
+onSnapshot(eventsCollection, (snapshot) => {
+  const events = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  console.log(events);
 });
 
 /* Menu Section */
@@ -273,6 +278,7 @@ function loadDashboard(role) {
 }
 
 // Wait for authentication state change
+document.addEventListener('DOMContentLoaded', () => {
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
@@ -290,50 +296,116 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "loginPage.html"; // Redirect if not logged in
   }
 });
+});
 
-// Function to display user profile
-function displayUserProfile(userData) {
-  document.getElementById("user-name").textContent = userData.name;
-  document.getElementById("user-email").textContent = userData.email;
-  document.getElementById("user-role").textContent = userData.role;
-  document.getElementById(`dashboard-${userData.role}`).classList.remove("hidden");
+ // Function to display user profile
+ function displayUserProfile(userData) {
+  if (!userData) return;
+
+  const name = document.getElementById("name");
+  if (name) name.textContent = userData.name;
+
+  const stuID = document.getElementById("stuID");
+  if (stuID) stuID.textContent = userData.stuID;
+
+  const email = document.getElementById("email");
+  if (email) email.textContent = userData.email;
+
+  const role = document.getElementById("role");
+  if (role) role.textContent = userData.role;
+
+  const dashboard = document.getElementById(`dashboard-${userData.role}`);
+  if (dashboard) dashboard.classList.remove("hidden");
 }
 
-// Function to load favorited and upcoming/past events
+
+// --- Load Featured Events ---
+async function loadFeaturedEvents() {
+  const container = document.querySelector("#featured-events .grid");
+  if (!container) return;
+
+  container.innerHTML = ""; // Clear any placeholder content
+
+  try {
+    const eventsRef = collection(db, "events");
+    const q = query(eventsRef, where("featured", "==", true));
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach((doc) => {
+      const event = doc.data();
+
+      const card = document.createElement("div");
+      card.className =
+        "featured-event opacity-0 transform translate-y-10 transition duration-700 ease-in-out bg-white p-4 rounded-lg shadow";
+
+      card.innerHTML = `
+        <h3 class="text-xl font-semibold">${event.title}</h3>
+        <p class="text-gray-600 mt-2">${event.description}</p>
+      `;
+
+      container.appendChild(card);
+    });
+
+    // Scroll-reveal animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove("opacity-0", "translate-y-10");
+          entry.target.classList.add("opacity-100", "translate-y-0");
+        } else {
+          entry.target.classList.remove("opacity-100", "translate-y-0");
+          entry.target.classList.add("opacity-0", "translate-y-10");
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll(".featured-event").forEach((el) => {
+      observer.observe(el);
+    });
+
+  } catch (error) {
+    console.error("Error loading featured events:", error);
+  }
+}
+
+// --- DOM Ready ---
+document.addEventListener("DOMContentLoaded", () => {
+  loadFeaturedEvents();
+});
+
 async function loadUserEvents(uid) {
-  const favoritesRef = collection(db, "favorites");
-  const favoritesQuery = query(favoritesRef, where("userId", "==", uid));
-  const favoriteDocs = await getDoc(favoritesQuery);
+  const container = document.querySelector("#user-events");
+  if (!container) return;
 
-  const upcomingEventsRef = collection(db, "events");
-  const upcomingQuery = query(upcomingEventsRef, where("attendees", "array-contains", uid));
-  const eventDocs = await getDoc(upcomingQuery);
+  container.innerHTML = ""; // Clear previous content
 
-  const currentDate = new Date();
+  try {
+    const eventsRef = collection(db, "events");
+    const q = query(eventsRef, where("userId", "==", uid));
+    const snapshot = await getDocs(q);
 
-  // Populate favorite events
-  const favoritesContainer = document.getElementById("favorited-events");
-  favoritesContainer.innerHTML = "";
-  favoriteDocs.forEach(doc => {
-    const event = doc.data();
-    favoritesContainer.innerHTML += `<p>${event.title}</p>`;
-  });
-
-  // Populate upcoming and past events
-  const upcomingContainer = document.getElementById("upcoming-events");
-  const pastContainer = document.getElementById("past-events");
-  upcomingContainer.innerHTML = "";
-  pastContainer.innerHTML = "";
-
-  eventDocs.forEach(doc => {
-    const event = doc.data();
-    const eventDate = new Date(event.date);
-    const eventElement = `<p>${event.title} - ${event.date}</p>`;
-    
-    if (eventDate >= currentDate) {
-      upcomingContainer.innerHTML += eventElement;
-    } else {
-      pastContainer.innerHTML += eventElement;
+    if (snapshot.empty) {
+      container.innerHTML = `<p class="text-gray-500">No events found.</p>`;
+      return;
     }
-  });
+
+    snapshot.forEach((doc) => {
+      const event = doc.data();
+
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-lg shadow p-4 mb-4";
+
+      card.innerHTML = `
+        <h3 class="text-xl font-semibold">${event.title}</h3>
+        <p class="text-gray-600 mt-1">${event.description}</p>
+        ${event.date ? `<p class="text-sm text-gray-400 mt-2">Date: ${event.date}</p>` : ""}
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Error loading user events:", error);
+    container.innerHTML = `<p class="text-red-500">Error loading events. Please try again later.</p>`;
+  }
 }

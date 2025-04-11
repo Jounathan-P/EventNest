@@ -7,36 +7,106 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lodash@4.17.20"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Login Page</title>
+    <title>Dashboard</title>
   </head>
 
-  <body class="bg-gray-100 p-6">
-    <h1 class="text-3xl font-semibold text-center text-green-600">EventNest Dashboard</h1>
-  
+  <body class="bg-gray-100 font-sans">
+    <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0F172A] text-white p-6 space-y-6">
+      <div>
+        <h2 class="text-xl font-bold">EventNest</h2>
+      </div>
+      <div>
+        <span class="text-sm" id="name"></span>
+        <span id="stuID"></span>
+        <span id="email"></span>
+        <span id="role"></span>
+        <div class="text-xs text-gray-400">student@email.com</div>
+      </div>
+      <nav class="space-y-4">
+        <a href="#" class="block py-2 px-3 rounded bg-green-600 text-white font-medium">My Dashboard</a>
+        <a href="eventBrowser.html" class="block py-2 px-3 rounded hover:bg-gray-700">Browse Events</a>
+        <a href="eventCalendar.html" class="block py-2 px-3 rounded hover:bg-gray-700">Calendar</a>
+      </nav>
+      <div>
+        <h3 class="text-xs text-gray-400 uppercase">Labels</h3>
+        <ul class="mt-2 space-y-1">
+          <li><a href="#" class="text-sm block hover:underline">Tech Events</a></li>
+          <li><a href="#" class="text-sm block hover:underline">Networking</a></li>
+        </ul>
+      </div>
+      <div class="mt-auto space-y-3">
+        <a href="#" class="block text-sm text-gray-300 hover:underline">Settings</a>
+        <a href="#" class="block text-sm text-gray-300 hover:underline">Logout</a>
+      </div>
+    </aside>   
     <!-- Student Dashboard -->
-    <div id="dashboard-student" class="hidden p-6 bg-white shadow-md rounded-lg">
-      <!-- Profile Section -->
-      <div id="profile-section" class="p-6 bg-white shadow-md rounded-lg mt-4">
-        <h2 class="text-xl font-semibold text-green-500">User Profile</h2>
-        <p><strong>Name:</strong> <span id="user-name"></span></p>
-        <p><strong>Email:</strong> <span id="user-email"></span></p>
-        <p><strong>Role:</strong> <span id="user-role"></span></p>
-      </div>
-      
-      <!-- Favorited Events -->
-      <div id="favorited-events" class="p-6 bg-white shadow-md rounded-lg mt-4">
-          <h2 class="text-xl font-semibold text-green-500">Favorited Events</h2>
-          <ul id="favorite-list" class="list-disc pl-5"></ul>
-      </div>
-      
-      <!-- Upcoming and Past Events -->
-      <div id="events-section" class="p-6 bg-white shadow-md rounded-lg mt-4">
-        <h2 class="text-xl font-semibold text-green-500">Your Events</h2>
-        <h3 class="text-lg font-semibold mt-2">Upcoming Events</h3>
-        <ul id="upcoming-events" class="list-disc pl-5"></ul>
-        <h3 class="text-lg font-semibold mt-2">Past Events</h3>
-        <ul id="past-events" class="list-disc pl-5"></ul>
-      </div>
+    <div id="dashboard-student" class="hidden p-6 w-full bg-white shadow-md rounded-lg">
+      <!-- Main Content -->
+      <main class="flex-1 p-8 overflow-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
+
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Favorited Events</p>
+            <p class="text-2xl font-semibold">6</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Upcoming Events</p>
+            <p class="text-2xl font-semibold">3</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Past Events</p>
+            <p class="text-2xl font-semibold">5</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Certificates</p>
+            <p class="text-2xl font-semibold">2</p>
+          </div>
+        </div>
+
+        <!-- Favorited Events -->
+        <section class="mb-10">
+          <h2 class="text-xl font-semibold text-gray-700 mb-4">Favorited Events</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow">
+              <p class="font-medium">Web Dev Bootcamp</p>
+              <p class="text-sm text-gray-500">25% Complete</p>
+              <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div class="bg-green-500 h-2.5 rounded-full" style="width: 25%"></div>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+              <p class="font-medium">Design Systems 101</p>
+              <p class="text-sm text-gray-500">75% Complete</p>
+              <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Upcoming Events -->
+        <section class="mb-10">
+          <h2 class="text-xl font-semibold text-gray-700 mb-4">Upcoming Events</h2>
+          <div class="bg-white p-4 rounded-lg shadow">
+            <p class="text-sm text-gray-600">UI Design Workshop</p>
+            <p class="text-xs text-gray-400">April 15, 2025 - 10:00 AM</p>
+          </div>
+        </section>
+
+        <!-- Past Events -->
+        <section>
+          <h2 class="text-xl font-semibold text-gray-700 mb-4">Past Events</h2>
+          <div class="bg-white p-4 rounded-lg shadow mb-2">
+            <p class="text-sm text-gray-600">Intro to React</p>
+            <p class="text-xs text-gray-400">March 12, 2025</p>
+          </div>
+        </section>
+      </main>
+    </div>
     </div>
   
     <!-- Organizer Dashboard -->
