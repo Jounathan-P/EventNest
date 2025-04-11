@@ -1,20 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@4.0.0/dist/tailwind.min.css" rel="stylesheet">
-    <link href="./output.css" rel="stylesheet">
     <script src="https://unpkg.com/lodash@4.17.20"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Create Event</title>
   </head>
-  <body>
-    <header>
-        <nav>
+  <body class="flex items-center justify-center min-h-screen bg-gray-100 relative">
+    
+    <!-- Upper Background-->
+    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+      <div class="relative left-[calc(50%-176px)] aspect-[1155/678] w-[578px] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#4CAF50] to-[#2E7D32] opacity-60 sm:left-[calc(50%-480px)] sm:w-[1155px]" 
+        style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+      </div>
+      <div class="absolute left-1/3 top-1/2 w-[500px] h-[400px] -translate-x-1/2 rotate-[15deg] 
+        bg-green-300 opacity-50 blur-2xl">
+      </div>
+    </div>
+
+    <div class="p-6 w-full max-w-md bg-white rounded-3xl shadow-2xl border border-green-300 flex flex-col items-center">  
+    <!-- Logo or Icon -->
+    <div class="mb-6 flex items-center justify-center w-60 h-12 bg-green-500 rounded-full shadow-md">
+      <span class="text-white text-2xl font-bold">Create Event</span>
+    </div>
+    <h2 class="text-2xl font-semibold text-gray-800"></h2>
             
-        </nav>
-    </header>
+    <form class="w-full max-w-sm">
+      <!-- Event Name //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-name">
+            Event Name
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-name" type="text" value="Event Name">
+        </div>
+      </div>
+      <!-- Event Description //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-name">
+            Event Description
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <textarea class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-description" type="text" value="Event Description"></textarea>
+        </div>
+      </div>
+      <!-- Event Location //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-location">
+            Event Location
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-location" type="text" value="Event Location">
+        </div>
+      </div>
+      <!-- Event Start Date & time //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-date-start">
+            Event Start Date
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-date-start" type="date" value="">
+        </div>
+        </div>
+        <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-time-start">
+            Start Time
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-time-start" type="time" value="">
+        </div>
+      </div>
+      <!-- Event End Date & time //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-date-end">
+            Event End Date
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-date-end" type="date" value="">
+        </div>
+      </div><div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-time-end">
+            End Time
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-time-end" type="time" value="">
+        </div>
+      </div>
+      <!-- Event Image Upload //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-image-upload">
+            Event Image Upload
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-event-image-upload" type="file" value="Event Image Upload">
+        </div>
+      </div>
+      <!-- Event Publicity //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3">
+          <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="inline-event-image-upload">
+            Event Publicity
+          </label>
+        </div>
+        <div class="md:w-2/3">
+          <input class="" type="radio" name="event-publicity" id="Public" value="Public">
+          <label class="text-gray-500 font-bold" for="Public">Public</label> &nbsp; &nbsp;
+          <input class="" type="radio" name="event-publicity" id="Private" value="Private">
+          <label class="text-gray-500 font-bold" for="Private">Private</label>
+        </div>
+      </div>
+      <!-- Event Registration Required //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3"></div>
+        <label class="md:w-2/3 block text-gray-500 font-bold">
+          <input class="mr-2 leading-tight" type="checkbox">
+          <span class="text-sm">
+            Event Registration Required
+          </span>
+        </label>
+      </div>
+      <!-- Event Student ID Required //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3"></div>
+        <label class="md:w-2/3 block text-gray-500 font-bold">
+          <input class="mr-2 leading-tight" type="checkbox">
+          <span class="text-sm">
+            Student ID Required
+          </span>
+        </label>
+      </div>
+      <!-- Submit //-->
+      <div class="md:flex md:items-center mb-6">
+        <div class="md:w-1/3"></div>
+        <div class="md:w-2/3">
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-Submit" type="button" value="Submit">
+          &nbsp;
+          <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-Cancel" type="button" value="Cancel">
+        </div>
+      </div>
+      </div>
+      </div>
+      </div>
+    </form>
+    </div> 
+    <!-- Lower Background -->
+    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+      <div class="relative left-[calc(50%+48px)] aspect-[1155/678] w-[578px] -translate-x-1/2 bg-gradient-to-tr from-[#4CAF50] to-[#2E7D32] opacity-50 sm:left-[calc(50%+576px)] sm:w-[1155px]" 
+        style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+      </div>
+      <div class="absolute left-1/3 top-1/2 w-[500px] h-[400px] -translate-x-1/2 rotate-[15deg] bg-green-300 opacity-50 blur-2xl">
+      </div>
+    </div> 
     <script src="/dist/bundle.js"></script>
   </body>
 </html>
