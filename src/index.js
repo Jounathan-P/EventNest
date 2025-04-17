@@ -40,7 +40,7 @@ onSnapshot(eventsCollection, (snapshot) => {
   console.log(events);
 });
 
-/* Menu Section */
+/* Homepage Section */
 // Menu Toggle Functionality
 window.onload = function () {
   const menuToggle = document.getElementById("menu-toggle");
@@ -66,6 +66,27 @@ window.onload = function () {
     });
   }
 };
+
+function initializeEventAnimations() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove("opacity-0", "translate-y-10");
+          entry.target.classList.add("opacity-100", "translate-y-0");
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll(".featured-event").forEach(el => observer.observe(el));
+}
+
+// Initialize featured events on page load
+document.addEventListener("DOMContentLoaded", () => {
+  loadFeaturedEvents();
+});
 
 /* Sign Up and Login Section */
 // Tab functionality
@@ -248,7 +269,7 @@ function renderAuthButton(user) {
 
   if (user) {
     authButtonContainer.innerHTML = `
-      <span class="text-sm text-gray-200 mr-4">Welcome, ${user.email}</span>
+      <span class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Welcome, ${user.name}</span>
       <button class="logout px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
         Logout
       </button>`;
@@ -374,27 +395,6 @@ function createEventCard(event) {
   return card;
 }
 
-function initializeEventAnimations() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.remove("opacity-0", "translate-y-10");
-          entry.target.classList.add("opacity-100", "translate-y-0");
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  document.querySelectorAll(".featured-event").forEach(el => observer.observe(el));
-}
-
-// Initialize featured events on page load
-document.addEventListener("DOMContentLoaded", () => {
-  loadFeaturedEvents();
-});
-
 async function loadOrganizerDashboard(uid) {
   const now = new Date();
   const eventsRef = collection(db, 'events');
@@ -459,7 +459,6 @@ async function deleteEvent(eventId) {
     }
   }
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
   const isDashboard = window.location.pathname.includes('dashboard');

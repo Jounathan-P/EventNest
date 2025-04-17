@@ -14,8 +14,27 @@
     <div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-[#0F172A] text-white p-6 space-y-6">
-      <div>
-        <h2 class="text-xl font-bold">EventNest</h2>
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10">
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <!-- Nest circle with swirl effect -->
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#4ade80" stroke-width="2" class="animate-[spin_3s_linear_infinite]"/>
+            <path d="M50,15 A35,35 0 0,1 85,50 A35,35 0 0,1 50,85 A35,35 0 0,1 15,50 A35,35 0 0,1 50,15 Z" 
+                  fill="none" stroke="#4ade80" stroke-width="2" stroke-dasharray="4 4"/>
+            
+            <!-- Letter E -->
+            <text x="50" y="62" text-anchor="middle" font-size="40" font-weight="bold" fill="#4ade80">E</text>
+            
+            <!-- Decorative leaves -->
+            <g class="animate-[bounce_2s_ease-in-out_infinite]">
+              <path d="M75,45 Q85,40 82,55" fill="none" stroke="#4ade80" stroke-width="2"/>
+              <path d="M25,55 Q15,50 18,65" fill="none" stroke="#4ade80" stroke-width="2"/>
+              <path d="M60,75 Q65,85 50,82" fill="none" stroke="#4ade80" stroke-width="2"/>
+              <path d="M40,25 Q45,15 30,18" fill="none" stroke="#4ade80" stroke-width="2"/>
+            </g>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-green-400">EventNest</h2>
       </div>
       <div>
         <span class="text-sm" id="name"></span>
@@ -29,13 +48,7 @@
         <a href="eventBrowser.html" class="block py-2 px-3 rounded hover:bg-gray-700">Browse Events</a>
         <a href="eventCalendar.html" class="block py-2 px-3 rounded hover:bg-gray-700">Calendar</a>
       </nav>
-      <div>
-        <h3 class="text-xs text-gray-400 uppercase">Labels</h3>
-        <ul class="mt-2 space-y-1">
-          <li><a href="#" class="text-sm block hover:underline">Tech Events</a></li>
-          <li><a href="#" class="text-sm block hover:underline">Networking</a></li>
-        </ul>
-      </div>
+
       <div class="mt-auto space-y-3">
         <a href="#" class="block text-sm text-gray-300 hover:underline">Settings</a>
             <!-- Conditional Login/Logout Buttons -->
