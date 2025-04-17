@@ -86,13 +86,12 @@ tabButtons.forEach(button => {
     });
 
     // Show selected form
-    document.getElementById(target).classList.remove("hidden");
-
-    // Highlight the selected tab
+    document.getElementById(`${target}-form`).classList.remove("hidden");
+     // Highlight the selected tab
     this.classList.add("text-green-600", "border-green-500", "font-bold");
     this.classList.remove("text-gray-600", "border-transparent", "font-medium");
   });
-});
+});   
 
 // Set default active tab
 document.addEventListener("DOMContentLoaded", () => {
@@ -101,53 +100,68 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // adding user docs
 document.addEventListener('DOMContentLoaded', (event) => {
-  document.body.addEventListener('submit', (e) => {
+  document.body.addEventListener('submit', async (e) => {
     if (e.target.matches('.add')){
       e.preventDefault()
 
       const forms = e.target;
       const role = forms.getAttribute("data-role");
-
-      const name = document.getElementById('name').value;
-      const stuIDInput = document.getElementById('stuID').value;
-      const stuID = role === "student" && stuIDInput ? stuIDInput.value : null;
-
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      createUserWithEmailAndPassword(auth, email, password)
-      .then(cred => {
-        const user = cred.user;
-        const userData = {
-          email: email,
-          name: name,
+      try {
+        // Get common form data
+        const formData = {
+          name: forms.querySelector('[name="name"]').value,
+          email: forms.querySelector('[name="email"]').value,
+          password: forms.querySelector('[name="password"]').value,
           role: role,
-          stuID: stuID || null,
-          createdAt: new Date()
+          createdAt: new Date(),
         };
-        console.log('user created with role: ', role, '/ and credentials: ', cred.user)
-        localStorage.setItem('loggedInUserId', user.uid);
-        const docRef = doc(db, 'users', user.uid);
-        setDoc(docRef, userData)
-        .then(() => {
-          redirectUser(role);
-        })
-        .catch(err => {
-          console.log(err.message)
-        });
-      })
-      .catch(err => {
-        console.log(err.message)
-        const errMsg = error.code;
-        if(errMsg == 'auth/email-already-in-use'){
-          alert('Email address already exists!')
+      
+      // Add role-specific data
+      switch (role) {
+        case 'student':
+          formData.studentId = forms.querySelector('[name="stuID"]').value;
+          formData.department = forms.querySelector('[name="department"]').value;
+          break;
+        case 'organizer':
+          formData.department = forms.querySelector('[name="department"]').value;
+          formData.description = forms.querySelector('[name="description"]').value;
+          break;
+        case 'admin':
+          formData.position = forms.querySelector('[name="position"]').value;
+          formData.department = forms.querySelector('[name="department"]').value;
+          break;
+      }
+        // Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(
+          auth, 
+          formData.email, 
+          formData.password
+        );
+
+        // Store additional user data in Firestore
+        const { password, ...userData } = formData;
+        await setDoc(doc(db, 'users', userCredential.user.uid), userData);
+
+        // Set user ID in local storage
+        localStorage.setItem('loggedInUserId', userCredential.user.uid);
+
+        // Show success message
+        alert('Account created successfully!');
+
+        // Redirect based on role
+        redirectUser('dashboard.html');
+
+      } catch (error) {
+        console.error('Error creating user:', error);
+        if (error.code === 'auth/email-already-in-use') {
+          alert('Email address is already registered!');
         } else {
-          alert('Unable to create user')
+          alert('Error creating account. Please try again.');
         }
-      })
+      }
     }
-  })
-})
+  });
+});
 
 // deleting docs
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -183,131 +197,68 @@ document.addEventListener('DOMContentLoaded', (event) => {
   })
 })
 
-// Sign-Up Form Submission
-document.addEventListener('DOMContentLoaded', (event) => {
-  document.body.addEventListener('submit', (e) => {
-    if (e.target.matches('.signup')){
-    e.preventDefault();
+// login form
+document.addEventListener('DOMContentLoaded', () => {
+  const loginForm = document.querySelector('.login');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      try {
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        localStorage.setItem('loggedInUserId', userCredential.user.uid);
+        
+        const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          redirectUser('dashboard.html');
+        } else {
+          throw new Error('User data not found');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Invalid email or password');
+      }
+    });
+  }
+});
 
-    const email = e.target.email.value
-    const password = e.target.password.value
-
-    createUserWithEmailAndPassword(auth, email, password)
-    .then(cred => {
-      console.log('user created:', cred.user)
-      e.target.reset()
-    })
-    .catch(err => {
-      console.log(err.message)
-    })
-    }
-  })
-
-  // log in and out
+// Logout handler
 document.body.addEventListener('click', (e) => {
   if (e.target.matches('.logout')) {
-    e.preventDefault()
+    e.preventDefault();
     signOut(auth)
-    .then(() => {
-      console.log('You have been signed out');
-    })
-    .catch((err) => {
-      console.log(err.message);
-    })
+      .then(() => {
+        localStorage.removeItem('loggedInUserId');
+        window.location.href = 'index.html';
+      })
+      .catch((error) => {
+        console.error('Logout error:', error);
+      });
   }
-})
-
-const loginForm = document.querySelector('.login')
-document.body.addEventListener('submit', (e) => { 
-  if (e.target.matches('.login')) { 
-    e.preventDefault(); 
-    const email = e.target.email.value; 
-    const password = e.target.password.value; 
-    signInWithEmailAndPassword(auth, email, password) 
-    .then((cred) => { 
-      console.log('user logged in: ', cred.user); 
-      const user = cred.user;
-      localStorage.setItem('loggedInUserId', user.uid);
-      window.location.href = 'dashboard.html'; // Redirect to dashboard after login
-    }) 
-    .catch((err) => { 
-      console.log(err.message); 
-    })
-  } 
-})
-})
+});
 
 // Function to render the login/logout button based on auth state
 function renderAuthButton(user) {
-  const authButtonContainer = document.getElementById('auth-button-container')
-  if(!authButtonContainer){
-    console.warn("auth container not found on this page")
-    return
-  }
+  const authButtonContainer = document.getElementById('auth-button-container');
+  if (!authButtonContainer) return;
+
   if (user) {
-    // If the user is logged in, show a Logout button
-    authButtonContainer.innerHTML = 
-      `<span class="me-3 text-light">Hello, ${user.email}</span>
-      <button class="btn btn-danger" id="logout">Logout</button>`;
-    // Add event listener for logout
-    document.getElementById('logout').addEventListener('click', () => {
-      signOut(auth).then(() => {
-        window.location.href = 'index.html'; // Redirect to homepage after logout
-      }).catch((error) => {
-        console.error('Logout Error:', error);
-      })
-    })
+    authButtonContainer.innerHTML = `
+      <span class="text-sm text-gray-200 mr-4">Welcome, ${user.email}</span>
+      <button class="logout px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+        Logout
+      </button>`;
   } else {
-    // If the user is not logged in, show a Login button
-    authButtonContainer.innerHTML = `<a href="loginPage.html" class="btn btn-primary">Login</a>`;
+    authButtonContainer.innerHTML = `
+      <a href="loginPage.html" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+        Login
+      </a>`;
   }
-}    
-
-document.addEventListener('DOMContentLoaded', () => {
-  const isDashboard = window.location.pathname.includes('dashboard');
-
-  onAuthStateChanged(auth, async (user) => {
-    renderAuthButton(user);
-
-    if(isDashboard && !user){
-      window.location.href = 'loginPage.html';
-      return;
-    }
-
-    if (isDashboard && user) {
-      const uid = user.uid;
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists()) {
-        const role = userDoc.data().role;
-        loadDashboard(role);
-        displayUserProfile(userDoc.data());
-        loadUserEvents(uid);
-      }
-    }
-    
-    // Show Relevant Dashboard After Login Based on Role
-    if (user) {
-      const uid = user.uid;
-      console.log("User UID:", uid);
-  
-      try {
-        const userDoc = await getDoc(doc(db, "users", uid));
-        if (userDoc.exists()) {
-          const role = userDoc.data().role;
-          loadDashboard(role);
-        } else {
-          console.error("No user data found in Firestore.");
-          // Optionally redirect or show error message
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error.message);
-      }
-  
-    } else {
-      window.location.href = "loginPage.html"; // Not logged in
-    }
-  });
-});
+}   
 
 // Redirect Users Immediately After Sign-Up Based on Role
 function redirectUser(role) {
@@ -363,88 +314,187 @@ async function loadFeaturedEvents() {
   const container = document.querySelector("#featured-events .grid");
   if (!container) return;
 
-  container.innerHTML = ""; // Clear any placeholder content
-
   try {
-    const eventsRef = collection(db, "events");
-    const q = query(eventsRef, where("featured", "==", true));
+    const q = query(eventsCollection, where("featured", "==", true));
     const snapshot = await getDocs(q);
+
+    container.innerHTML = "";
 
     snapshot.forEach((doc) => {
       const event = doc.data();
-
-      const card = document.createElement("div");
-      card.className =
-        "featured-event opacity-0 transform translate-y-10 transition duration-700 ease-in-out bg-white p-4 rounded-lg shadow";
-
-      card.innerHTML = `
-        <h3 class="text-xl font-semibold">${event.title}</h3>
-        <p class="text-gray-600 mt-2">${event.description}</p>
-      `;
-
+      const card = createEventCard(event);
       container.appendChild(card);
     });
 
-    // Scroll-reveal animation
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.remove("opacity-0", "translate-y-10");
-          entry.target.classList.add("opacity-100", "translate-y-0");
-        } else {
-          entry.target.classList.remove("opacity-100", "translate-y-0");
-          entry.target.classList.add("opacity-0", "translate-y-10");
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll(".featured-event").forEach((el) => {
-      observer.observe(el);
-    });
-
+    initializeEventAnimations();
   } catch (error) {
     console.error("Error loading featured events:", error);
+    container.innerHTML = `
+      <div class="col-span-full text-center text-red-600">
+        Error loading events. Please try again later.
+      </div>`;
   }
 }
-
-// --- DOM Ready ---
-document.addEventListener("DOMContentLoaded", () => {
-  loadFeaturedEvents();
-});
 
 async function loadUserEvents(uid) {
   const container = document.querySelector("#user-events");
   if (!container) return;
 
-  container.innerHTML = ""; // Clear previous content
-
   try {
-    const eventsRef = collection(db, "events");
-    const q = query(eventsRef, where("userId", "==", uid));
+    const q = query(eventsCollection, where("userId", "==", uid));
     const snapshot = await getDocs(q);
 
-    if (snapshot.empty) {
-      container.innerHTML = `<p class="text-gray-500">No events found.</p>`;
-      return;
-    }
+    container.innerHTML = snapshot.empty 
+      ? `<p class="text-gray-500">No events found.</p>`
+      : "";
 
     snapshot.forEach((doc) => {
       const event = doc.data();
-
-      const card = document.createElement("div");
-      card.className = "bg-white rounded-lg shadow p-4 mb-4";
-
-      card.innerHTML = `
-        <h3 class="text-xl font-semibold">${event.title}</h3>
-        <p class="text-gray-600 mt-1">${event.description}</p>
-        ${event.date ? `<p class="text-sm text-gray-400 mt-2">Date: ${event.date}</p>` : ""}
-      `;
-
+      const card = createEventCard(event);
       container.appendChild(card);
     });
-
   } catch (error) {
     console.error("Error loading user events:", error);
-    container.innerHTML = `<p class="text-red-500">Error loading events. Please try again later.</p>`;
+    container.innerHTML = `
+      <p class="text-red-500">Error loading events. Please try again later.</p>`;
   }
 }
+
+// Helper functions
+function createEventCard(event) {
+  const card = document.createElement("div");
+  card.className = "bg-white rounded-lg shadow p-4 mb-4";
+  
+  card.innerHTML = `
+    <h3 class="text-xl font-semibold">${event.title}</h3>
+    <p class="text-gray-600 mt-1">${event.description}</p>
+    ${event.date ? `<p class="text-sm text-gray-400 mt-2">Date: ${event.date}</p>` : ""}
+  `;
+  
+  return card;
+}
+
+function initializeEventAnimations() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove("opacity-0", "translate-y-10");
+          entry.target.classList.add("opacity-100", "translate-y-0");
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll(".featured-event").forEach(el => observer.observe(el));
+}
+
+// Initialize featured events on page load
+document.addEventListener("DOMContentLoaded", () => {
+  loadFeaturedEvents();
+});
+
+async function loadOrganizerDashboard(uid) {
+  const now = new Date();
+  const eventsRef = collection(db, 'events');
+  const q = query(eventsRef, where('organizerId', '==', uid));
+  const querySnapshot = await getDocs(q);
+
+  const upcomingContainer = document.getElementById('upcoming-events');
+  const pastContainer = document.getElementById('past-events');
+
+  querySnapshot.forEach(doc => {
+    const event = doc.data();
+    const eventDate = new Date(event.date);
+
+    if (eventDate >= now) {
+      // Upcoming Event
+        const card = `
+        <div class="bg-white p-4 shadow rounded relative" data-event-id="${doc.id}">
+          <h4 class="text-lg font-semibold">${event.title}</h4>
+          <p class="text-sm text-gray-600">${eventDate.toDateString()} - ${event.time}</p>
+          <p class="text-sm mt-2">${event.description || 'No description available.'}</p>
+          
+          <div class="absolute top-4 right-4 space-x-2">
+            <button onclick="editEvent('${doc.id}')" class="text-sm text-blue-600 hover:underline">Edit</button>
+            <button onclick="deleteEvent('${doc.id}')" class="text-sm text-red-600 hover:underline">Delete</button>
+          </div>
+        </div>`;
+      upcomingContainer.innerHTML += card;
+      
+    } else {
+      // Past Event + Reviews
+      const reviews = event.reviews || [];
+      const reviewHTML = reviews.length
+        ? reviews.map(r => `<p class="text-sm text-gray-600">⭐ ${r.rating}/5 — "${r.comment}"</p>`).join('')
+        : '<p class="text-sm text-gray-400">No reviews yet.</p>';
+
+      const card = `
+        <div class="bg-white p-4 shadow rounded">
+          <h4 class="text-lg font-semibold">${event.title}</h4>
+          <p class="text-sm text-gray-600">${eventDate.toDateString()}</p>
+          <div class="mt-2">${reviewHTML}</div>
+        </div>`;
+      pastContainer.innerHTML += card;
+    }
+  });
+}
+
+function editEvent(eventId) {
+  // Redirect to the event creation page with eventId as a query parameter
+  window.location.href = `eventCreatePage.html?eventId=${eventId}`;
+}
+
+async function deleteEvent(eventId) {
+  if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+    try {
+      await deleteDoc(doc(db, "events", eventId));
+      alert("Event deleted successfully.");
+      // Optionally reload the dashboard
+      location.reload();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Failed to delete event. Try again.");
+    }
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const isDashboard = window.location.pathname.includes('dashboard');
+
+  onAuthStateChanged(auth, async (user) => {
+    renderAuthButton(user); // Always show login/logout button correctly
+
+    // Redirect if on dashboard and not logged in
+    if (isDashboard && !user) {
+      window.location.href = 'loginPage.html';
+      return;
+    }
+
+    // If logged in and on dashboard, load user data
+    if (isDashboard && user) {
+      const uid = user.uid;
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const role = userData.role;
+
+          loadDashboard(role);
+          displayUserProfile(userData);
+          loadUserEvents(uid);
+          loadOrganizerDashboard(uid);
+        } else {
+          console.error("No user data found in Firestore.");
+          // Optional: Redirect or show an error
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      }
+    }
+  });
+});
+
