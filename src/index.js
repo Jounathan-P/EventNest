@@ -68,6 +68,7 @@ window.onload = function () {
   }
 };
 
+// Initialize Event Animations
 function initializeEventAnimations() {
   const observer = new IntersectionObserver(
     (entries) => {
@@ -87,9 +88,9 @@ function initializeEventAnimations() {
 // Initialize featured events on page load
 document.addEventListener("DOMContentLoaded", () => {
   loadFeaturedEvents();
+  tabButtons[0]?.click(); // set default active tab
 });
 
-/* Sign Up and Login Section */
 // Tab functionality
 const tabButtons = document.querySelectorAll(".tab-btn");
 const forms = document.querySelectorAll(".signup-form");
@@ -100,25 +101,17 @@ tabButtons.forEach(button => {
 
     // Hide all forms
     forms.forEach(form => form.classList.add("hidden"));
-
-    // Remove active state from all tabs
     tabButtons.forEach(btn => {
       btn.classList.remove("text-green-600", "border-green-500", "font-bold");
       btn.classList.add("text-gray-600", "border-transparent", "font-medium");
     });
 
-    // Show selected form
+    // Show selected form and higlight
     document.getElementById(`${target}-form`).classList.remove("hidden");
-     // Highlight the selected tab
     this.classList.add("text-green-600", "border-green-500", "font-bold");
     this.classList.remove("text-gray-600", "border-transparent", "font-medium");
   });
 });   
-
-// Set default active tab
-document.addEventListener("DOMContentLoaded", () => {
-  tabButtons[0]?.click(); // Optional chaining prevents error if tabButtons[0] is undefined
-});
 
 // adding user docs
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -762,4 +755,102 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   };
+});
+document.addEventListener("DOMContentLoaded", () => {
+  // Check if calendar container exists on this page
+  const calendarContainer = document.getElementById("calendar-container");
+  if (!calendarContainer) return;
+
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+
+  const monthYearLabel = document.getElementById("month-label");
+  const calendarGrid = document.getElementById("calendar-grid");
+  const prevMonthBtn = document.getElementById("prev-month");
+  const nextMonthBtn = document.getElementById("next-month");
+
+  if (!monthYearLabel || !calendarGrid || !prevMonthBtn || !nextMonthBtn) return;
+
+  prevMonthBtn.addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar(currentMonth, currentYear);
+  });
+
+  nextMonthBtn.addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar(currentMonth, currentYear);
+  });
+
+  async function renderCalendar(month, year) {
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    calendarGrid.innerHTML = "";
+    monthYearLabel.textContent = `${new Date(year, month).toLocaleString("default", { month: "long" })} ${year}`;
+
+    const calendarCells = [];
+
+    for (let i = 0; i < firstDay; i++) {
+      calendarCells.push(`<div class="p-2 h-24 border rounded bg-gray-50"></div>`);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cellDate = new Date(year, month, day);
+      const dateStr = cellDate.toISOString().split("T")[0];
+
+      calendarCells.push(`
+        <div class="p-2 h-24 border rounded bg-white overflow-auto" id="day-${dateStr}">
+          <div class="font-bold">${day}</div>
+          <div class="mt-1 space-y-1 text-xs text-left" id="events-${dateStr}"></div>
+        </div>
+      `);
+    }
+
+    calendarGrid.innerHTML = calendarCells.join("");
+
+    await loadEventsForMonth(month, year);
+  }
+
+  async function loadEventsForMonth(month, year) {
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
+
+    const q = query(
+      collection(db, "events"),
+      where("date", ">=", startOfMonth.toISOString()),
+      where("date", "<=", endOfMonth.toISOString())
+    );
+
+    try {
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        const eventDate = new Date(event.date).toISOString().split("T")[0];
+        const target = document.getElementById(`events-${eventDate}`);
+
+        if (target) {
+          target.innerHTML += `
+            <a class="block bg-blue-100 text-blue-800 px-1 py-0.5 rounded truncate hover:underline" 
+               href="eventDetails.html?id=${doc.id}" 
+               title="${event.title}">
+               ${event.title}
+            </a>
+          `;
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching events for calendar:", error);
+    }
+  }
+
+  // Initial render
+  renderCalendar(currentMonth, currentYear);
 });
