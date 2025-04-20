@@ -559,7 +559,7 @@ async function loadPendingEvents() {
           <div class="flex space-x-2">
             <button class="text-green-600 hover:text-green-900" onclick="approveEvent('${doc.id}')">Approve</button>
             <button class="text-red-600 hover:text-red-900" onclick="denyEvent('${doc.id}')">Deny</button>
-            <button class="text-blue-600 hover:text-blue-900" onclick="viewEventDetails('${doc.id}')">View</button>
+            <button class="text-blue-600 hover:text-blue-900" onclick="window.location.href='eventDetails.html?id=${doc.id}'">View</button>
           </div>
         </td>
       </tr>
@@ -631,4 +631,135 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const eventId = urlParams.get("id");
+
+  if (!eventId) return; // Prevent unnecessary execution
+
+  let currentUser = null;
+  let currentEvent = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    if (user) {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        currentUser = { ...user, ...userDoc.data() };
+      }
+    }
+    loadEventDetails();
+  });
+
+  async function loadEventDetails() {
+    try {
+      const eventDoc = await getDoc(doc(db, "events", eventId));
+      if (!eventDoc.exists()) return showError("Event not found");
+
+      currentEvent = { id: eventDoc.id, ...eventDoc.data() };
+
+      if (!canViewEvent(currentEvent, currentUser)) {
+        return showError("You don't have permission to view this event");
+      }
+
+      displayEvent(currentEvent);
+    } catch (error) {
+      console.error("Error loading event:", error);
+      showError("Error loading event details");
+    }
+  }
+
+  function canViewEvent(event, user) {
+    if (!event) return false;
+    if (event.status === "approved") return true;
+    if (!user) return false;
+
+    return user.role === "admin" || (user.role === "organizer" && event.organizerId === user.uid);
+  }
+
+  function displayEvent(event) {
+    document.getElementById("loading-state")?.classList.add("hidden");
+    document.getElementById("event-content")?.classList.remove("hidden");
+
+    document.getElementById("event-title").textContent = event.title;
+    document.getElementById("event-description").textContent = event.description;
+    document.getElementById("event-date").textContent = new Date(event.date).toLocaleDateString();
+    document.getElementById("event-location").textContent = event.location;
+    document.getElementById("event-start-time").textContent = `Starts: ${event.startTime}`;
+    document.getElementById("event-end-time").textContent = `Ends: ${event.endTime}`;
+    document.getElementById("event-type").textContent = `Type: ${event.publicity}`;
+    document.getElementById("registration-required").textContent = 
+      `Registration: ${event.requiresRegistration ? "Required" : "Not Required"}`;
+    document.getElementById("student-id-required").textContent = 
+      `Student ID: ${event.requiresStudentId ? "Required" : "Not Required"}`;
+
+    const statusBadge = document.getElementById("status-badge");
+    if (statusBadge) {
+      const statusClasses = {
+        pending: "bg-yellow-100 text-yellow-800",
+        approved: "bg-green-100 text-green-800",
+        denied: "bg-red-100 text-red-800"
+      };
+      statusBadge.innerHTML = `
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[event.status]}">
+          ${event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+        </span>
+      `;
+    }
+
+    if (currentUser?.role === "admin") {
+      document.getElementById("admin-actions")?.classList.remove("hidden");
+    }
+
+    if (currentUser?.role === "organizer" && event.organizerId === currentUser.uid) {
+      document.getElementById("organizer-actions")?.classList.remove("hidden");
+    }
+  }
+
+  function showError(message) {
+    document.getElementById("loading-state")?.classList.add("hidden");
+    const errorState = document.getElementById("error-state");
+    if (errorState) {
+      errorState.classList.remove("hidden");
+      errorState.querySelector("p").textContent = message;
+    }
+  }
+
+  // Actions exposed to window for button onclick usage
+  window.approveEvent = async function () {
+    try {
+      await updateDoc(doc(db, "events", currentEvent.id), { status: "approved" });
+      location.reload();
+    } catch (error) {
+      console.error("Error approving event:", error);
+      alert("Failed to approve event");
+    }
+  };
+
+  window.denyEvent = async function () {
+    try {
+      await updateDoc(doc(db, "events", currentEvent.id), { status: "denied" });
+      location.reload();
+    } catch (error) {
+      console.error("Error denying event:", error);
+      alert("Failed to deny event");
+    }
+  };
+
+  window.editEvent = function () {
+    window.location.href = `eventCreatePage.html?eventId=${currentEvent.id}`;
+  };
+
+  window.deleteEvent = async function () {
+    if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+      try {
+        await deleteDoc(doc(db, "events", currentEvent.id));
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        alert("Failed to delete event");
+      }
+    }
+  };
 });

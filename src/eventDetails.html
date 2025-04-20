@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Event Details - EventNest</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+	<div class="min-h-screen">
+		<!-- Navigation -->
+		<nav class="bg-[#0F172A] text-white">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="flex justify-between h-16 items-center">
+					<div class="flex items-center space-x-3">
+						<div class="w-10 h-10">
+							<svg viewBox="0 0 100 100" class="w-full h-full">
+								<!-- Nest circle with swirl effect -->
+								<circle cx="50" cy="50" r="35" fill="none" stroke="#4ade80" stroke-width="2" class="animate-[spin_3s_linear_infinite]"/>
+								<path d="M50,15 A35,35 0 0,1 85,50 A35,35 0 0,1 50,85 A35,35 0 0,1 15,50 A35,35 0 0,1 50,15 Z" 
+											fill="none" stroke="#4ade80" stroke-width="2" stroke-dasharray="4 4"/>
+								
+								<!-- Letter E -->
+								<text x="50" y="62" text-anchor="middle" font-size="40" font-weight="bold" fill="#4ade80">E</text>
+								
+								<g class="animate-[bounce_2s_ease-in-out_infinite]">
+									<path d="M75,45 Q85,40 82,55" fill="none" stroke="#4ade80" stroke-width="2"/>
+									<path d="M25,55 Q15,50 18,65" fill="none" stroke="#4ade80" stroke-width="2"/>
+									<path d="M60,75 Q65,85 50,82" fill="none" stroke="#4ade80" stroke-width="2"/>
+									<path d="M40,25 Q45,15 30,18" fill="none" stroke="#4ade80" stroke-width="2"/>
+								</g>
+							</svg>
+						</div>
+						<h2 class="text-xl font-bold text-green-400">EventNest</h2>
+					</div>
+					<div id="auth-button-container"></div>
+				</div>
+			</div>
+	</nav>
+
+		<!-- Main Content -->
+		<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+			<!-- Event Details -->
+			<div id="event-container" class="bg-white shadow rounded-lg overflow-hidden">
+				<!-- Loading State -->
+				<div id="loading-state" class="p-8 text-center">
+					<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
+					<p class="mt-4 text-gray-600">Loading event details...</p>
+				</div>
+
+				<!-- Error State -->
+				<div id="error-state" class="hidden p-8 text-center">
+					<p class="text-red-600">Unable to load event details.</p>
+				</div>
+
+				<!-- Event Content -->
+				<div id="event-content" class="hidden">
+					<!-- Event Header -->
+					<div class="relative h-64 bg-gray-200">
+						<img id="event-image" src="https://images.unsplash.com/photo-1540575467063-178a50c2df87" alt="Event cover" class="w-full h-full object-cover">
+						<div class="absolute inset-0 bg-black bg-opacity-40"></div>
+						<div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+							<h1 id="event-title" class="text-3xl font-bold"></h1>
+							<p id="event-date" class="mt-2"></p>
+						</div>
+					</div>
+
+					<!-- Event Body -->
+					<div class="p-6">
+						<!-- Status Badge -->
+						<div id="status-badge" class="mb-6"></div>
+
+						<!-- Admin Actions -->
+						<div id="admin-actions" class="hidden mb-6 flex space-x-4">
+							<button onclick="approveEvent()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+							Approve Event
+							</button>
+							<button onclick="denyEvent()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+							Deny Event
+							</button>
+						</div>
+
+						<!-- Organizer Actions -->
+						<div id="organizer-actions" class="hidden mb-6 flex space-x-4">
+							<button onclick="editEvent()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+							Edit Event
+							</button>
+							<button onclick="deleteEvent()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+							Delete Event
+							</button>
+						</div>
+
+						<!-- Event Details -->
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+							<!-- Left Column - Main Info -->
+							<div class="md:col-span-2 space-y-6">
+								<div>
+									<h2 class="text-xl font-semibold mb-2">About This Event</h2>
+									<p id="event-description" class="text-gray-600"></p>
+								</div>
+
+								<div>
+									<h2 class="text-xl font-semibold mb-2">Schedule</h2>
+									<div class="space-y-2">
+										<p id="event-start-time" class="text-gray-600"></p>
+										<p id="event-end-time" class="text-gray-600"></p>
+									</div>
+								</div>
+
+								<div>
+									<h2 class="text-xl font-semibold mb-2">Location</h2>
+									<p id="event-location" class="text-gray-600"></p>
+								</div>
+							</div>
+
+							<!-- Right Column - Additional Info -->
+							<div class="space-y-6">
+								<div class="bg-gray-50 p-4 rounded-lg">
+									<h2 class="text-lg font-semibold mb-2">Event Details</h2>
+									<ul class="space-y-2">
+										<li id="event-type" class="text-gray-600"></li>
+										<li id="registration-required" class="text-gray-600"></li>
+										<li id="student-id-required" class="text-gray-600"></li>
+									</ul>
+								</div>
+
+								<div class="bg-gray-50 p-4 rounded-lg">
+									<h2 class="text-lg font-semibold mb-2">Organizer</h2>
+									<div id="organizer-info" class="text-gray-600"></div>
+								</div>
+							</div>	
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+	<script src="/dist/bundle.js"></script>
+</body>
+</html>
