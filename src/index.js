@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import {
   getFirestore, collection, onSnapshot,
   addDoc, deleteDoc, doc, query, where,
-  updateDoc, getDoc, setDoc, getDocs
+  updateDoc, getDoc, setDoc, getDocs, serverTimestamp
 } from 'firebase/firestore';
 import {
   getAuth, createUserWithEmailAndPassword,
@@ -35,6 +35,7 @@ onSnapshot(usersCollection, (snapshot) => {
   const users = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   console.log(users);
 });
+
 onSnapshot(eventsCollection, (snapshot) => {
   const events = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   console.log(events);
@@ -274,7 +275,7 @@ function renderAuthButton(user) {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
       </button>
-      <span class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Welcome, ${user.email}</span>
+      <a  href="dashboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Welcome, ${user.email}</a>
       <button class="logout px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
         Logout
       </button>`;
@@ -334,9 +335,9 @@ function loadDashboard(role) {
   if (dashboard) dashboard.classList.remove("hidden");
 }
 
-
 // --- Load Featured Events ---
 async function loadFeaturedEvents() {
+  query (collection(db, "events"), where("status", "==", "approved"))
   const container = document.querySelector("#featured-events .grid");
   if (!container) return;
 
@@ -409,45 +410,97 @@ async function loadOrganizerDashboard(uid) {
   const upcomingContainer = document.getElementById('upcoming-events');
   const pastContainer = document.getElementById('past-events');
 
+  if (upcomingContainer) upcomingContainer.innerHTML = '';
+  if (pastContainer) pastContainer.innerHTML = '';
+
   querySnapshot.forEach(doc => {
     const event = doc.data();
     const eventDate = new Date(event.date);
 
     if (eventDate >= now) {
       // Upcoming Event
+      if (upcomingContainer) {
         const card = `
-        <div class="bg-white p-4 shadow rounded relative" data-event-id="${doc.id}">
-          <h4 class="text-lg font-semibold">${event.title}</h4>
-          <p class="text-sm text-gray-600">${eventDate.toDateString()} - ${event.time}</p>
-          <p class="text-sm mt-2">${event.description || 'No description available.'}</p>
-          
-          <div class="absolute top-4 right-4 space-x-2">
-            <button onclick="editEvent('${doc.id}')" class="text-sm text-blue-600 hover:underline">Edit</button>
-            <button onclick="deleteEvent('${doc.id}')" class="text-sm text-red-600 hover:underline">Delete</button>
-          </div>
-        </div>`;
-      upcomingContainer.innerHTML += card;
-      
+          <div class="bg-white p-4 shadow rounded relative" data-event-id="${doc.id}">
+            <h4 class="text-lg font-semibold">${event.title || event.name}</h4>
+            <p class="text-sm text-gray-600">${eventDate.toDateString()} - ${event.time || event.startTime}</p>
+            <p class="text-sm mt-2">${event.description || 'No description available.'}</p>
+            
+            <div class="absolute top-4 right-4 space-x-2">
+              <button onclick="editEvent('${doc.id}')" class="text-sm text-blue-600 hover:underline">Edit</button>
+              <button onclick="deleteEvent('${doc.id}')" class="text-sm text-red-600 hover:underline">Delete</button>
+            </div>
+          </div>`;
+        upcomingContainer.insertAdjacentHTML('beforeend', card);
+      }
     } else {
       // Past Event + Reviews
-      const reviews = event.reviews || [];
-      const reviewHTML = reviews.length
-        ? reviews.map(r => `<p class="text-sm text-gray-600">⭐ ${r.rating}/5 — "${r.comment}"</p>`).join('')
-        : '<p class="text-sm text-gray-400">No reviews yet.</p>';
+      if (pastContainer) {
+        const reviews = event.reviews || [];
+        const reviewHTML = reviews.length
+          ? reviews.map(r => `<p class="text-sm text-gray-600">⭐ ${r.rating}/5 — "${r.comment}"</p>`).join('')
+          : '<p class="text-sm text-gray-400">No reviews yet.</p>';
 
-      const card = `
-        <div class="bg-white p-4 shadow rounded">
-          <h4 class="text-lg font-semibold">${event.title}</h4>
-          <p class="text-sm text-gray-600">${eventDate.toDateString()}</p>
-          <div class="mt-2">${reviewHTML}</div>
-        </div>`;
-      pastContainer.innerHTML += card;
+        const card = `
+          <div class="bg-white p-4 shadow rounded">
+            <h4 class="text-lg font-semibold">${event.title || event.name}</h4>
+            <p class="text-sm text-gray-600">${eventDate.toDateString()}</p>
+            <div class="mt-2">${reviewHTML}</div>
+          </div>`;
+        pastContainer.insertAdjacentHTML('beforeend', card);
+      }
     }
   });
 }
 
+//Organizer Event Request
+document.addEventListener('DOMContentLoaded', () => {
+  const submitButton = document.getElementById("inline-Submit");
+  if (submitButton) {
+    submitButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to create an event.");
+        return;
+      }
+      try {
+        const eventData = {
+          title: document.getElementById("inline-event-name").value,
+          description: document.getElementById("inline-event-description").value,
+          location: document.getElementById("inline-event-location").value,
+          date: document.getElementById("inline-event-date-start").value,
+          startTime: document.getElementById("inline-event-time-start").value,
+          endDate: document.getElementById("inline-event-date-end").value,
+          endTime: document.getElementById("inline-event-time-end").value,
+          publicity: document.querySelector('input[name="event-publicity"]:checked')?.value || "Public",
+          requiresRegistration: document.querySelectorAll('input[type="checkbox"]')[0]?.checked || false,
+          requiresStudentId: document.querySelectorAll('input[type="checkbox"]')[1]?.checked || false,
+          organizerId: user.uid,
+          createdAt: serverTimestamp(),
+          status: "pending"
+        };
+
+        const docRef = await addDoc(collection(db, "events"), eventData);
+        console.log("Event created with ID:", docRef.id);
+        alert("Event request submitted successfully!");
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        console.error("Error creating event:", error);
+        alert("Error creating event. Please try again.");
+      }
+    });
+  }
+});
+
+const cancelButton = document.getElementById("inline-Cancel");
+if (cancelButton) {
+  cancelButton.addEventListener("click", () => {
+    window.location.href = "dashboard.html";
+  });
+}
+
 function editEvent(eventId) {
-  // Redirect to the event creation page with eventId as a query parameter
   window.location.href = `eventCreatePage.html?eventId=${eventId}`;
 }
 
@@ -456,7 +509,6 @@ async function deleteEvent(eventId) {
     try {
       await deleteDoc(doc(db, "events", eventId));
       alert("Event deleted successfully.");
-      // Optionally reload the dashboard
       location.reload();
     } catch (error) {
       console.error("Error deleting event:", error);
@@ -465,19 +517,94 @@ async function deleteEvent(eventId) {
   }
 }
 
+async function loadPendingEvents() {
+  const eventsRef = collection(db, "events");
+  const q = query(eventsRef, where("status", "==", "pending"));
+  const querySnapshot = await getDocs(q);
+
+  const tableBody = document.querySelector("#pending-events-table-body");
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = "";
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const row = `
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="flex items-center">
+            <div class="h-10 w-10 flex-shrink-0">
+              <img class="h-10 w-10 rounded-full" src="${data.image || 'https://via.placeholder.com/40'}" alt="">
+            </div>
+            <div class="ml-4">
+              <div class="text-sm font-medium text-gray-900">${data.title || data.name}</div>
+              <div class="text-sm text-gray-500">${data.category || ''}</div>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-900">${data.organizer?.name || ''}</div>
+          <div class="text-sm text-gray-500">${data.organizer?.organization || ''}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-900">${new Date(data.date).toLocaleDateString()}</div>
+          <div class="text-sm text-gray-500">${data.startTime || ''}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+            Pending Review
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div class="flex space-x-2">
+            <button class="text-green-600 hover:text-green-900" onclick="approveEvent('${doc.id}')">Approve</button>
+            <button class="text-red-600 hover:text-red-900" onclick="denyEvent('${doc.id}')">Deny</button>
+            <button class="text-blue-600 hover:text-blue-900" onclick="viewEventDetails('${doc.id}')">View</button>
+          </div>
+        </td>
+      </tr>
+    `;
+    tableBody.insertAdjacentHTML("beforeend", row);
+  });
+}
+
+async function approveEvent(eventId) {
+  try {
+    const eventRef = doc(db, "events", eventId);
+    await updateDoc(eventRef, {
+      status: "approved"
+    });
+    loadPendingEvents();
+  } catch (error) {
+    console.error("Error approving event:", error);
+    alert("Failed to approve event. Please try again.");
+  }
+}
+
+async function denyEvent(eventId) {
+  try {
+    const eventRef = doc(db, "events", eventId);
+    await updateDoc(eventRef, {
+      status: "denied"
+    });
+    loadPendingEvents();
+  } catch (error) {
+    console.error("Error denying event:", error);
+    alert("Failed to deny event. Please try again.");
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const isDashboard = window.location.pathname.includes('dashboard');
 
   onAuthStateChanged(auth, async (user) => {
-    renderAuthButton(user); // Always show login/logout button correctly
+    renderAuthButton(user);
 
-    // Redirect if on dashboard and not logged in
     if (isDashboard && !user) {
       window.location.href = 'loginPage.html';
       return;
     }
 
-    // If logged in and on dashboard, load user data
     if (isDashboard && user) {
       const uid = user.uid;
 
@@ -491,9 +618,13 @@ document.addEventListener('DOMContentLoaded', () => {
           displayUserProfile(userData);
           loadUserEvents(uid);
           loadOrganizerDashboard(uid);
+          
+          if (role === 'admin') {
+            loadPendingEvents();
+          }
         } else {
           console.error("No user data found in Firestore.");
-          // Optional: Redirect or show an error
+          signOut(auth);
         }
       } catch (error) {
         console.error("Error fetching user data:", error.message);
@@ -501,4 +632,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
