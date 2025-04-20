@@ -83,33 +83,73 @@
             </div>
           </div>
 
-          <!-- Favorited Events -->
-          <section class="mb-10">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Favorited Events</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-              <div class="bg-white p-4 rounded-lg shadow">
-                <p class="font-medium">Web Dev Bootcamp</p>
-                <p class="text-sm text-gray-500">25% Complete</p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                  <div class="bg-green-500 h-2.5 rounded-full" style="width: 25%"></div>
+         <!-- Favorited Events -->
+         <section class="mb-10">
+          <h2 class="text-xl font-semibold text-gray-700 mb-6">Favorited Events</h2>
+        
+          <div class="relative w-full overflow-hidden">
+            <div id="carousel-track" class="flex transition-transform duration-500 ease-in-out">
+              <!-- Event Card Template -->
+              <div class="carousel-item flex-shrink-0 w-full sm:w-3/4 lg:w-1/2 px-4 scale-100 opacity-100 transition-all duration-500">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1000" class="w-full h-48 object-cover" />
+                  <div class="p-4">
+                    <div class="flex items-center text-sm text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      June 15, 2025
+                    </div>
+                    <h3 class="mt-2 text-lg font-semibold text-gray-900">Annual Leadership Seminar</h3>
+                    <p class="mt-1 text-sm text-gray-600">Join us for a day of innovation and networking with leaders in various fields.</p>
+                  </div>
                 </div>
               </div>
-              <div class="bg-white p-4 rounded-lg shadow">
-                <p class="font-medium">Design Systems 101</p>
-                <p class="text-sm text-gray-500">75% Complete</p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                  <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+              <div class="carousel-item flex-shrink-0 w-full sm:w-3/4 lg:w-1/2 px-4 scale-100 opacity-100 transition-all duration-500">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1000" class="w-full h-48 object-cover" />
+                  <div class="p-4">
+                    <div class="flex items-center text-sm text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      June 15, 2025
+                    </div>
+                    <h3 class="mt-2 text-lg font-semibold text-gray-900">Annual Leadership Seminar</h3>
+                    <p class="mt-1 text-sm text-gray-600">Join us for a day of innovation and networking with leaders in various fields.</p>
+                  </div>
                 </div>
               </div>
+              <div class="carousel-item flex-shrink-0 w-full sm:w-3/4 lg:w-1/2 px-4 scale-100 opacity-100 transition-all duration-500">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1000" class="w-full h-48 object-cover" />
+                  <div class="p-4">
+                    <div class="flex items-center text-sm text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      June 15, 2025
+                    </div>
+                    <h3 class="mt-2 text-lg font-semibold text-gray-900">Annual Leadership Seminar</h3>
+                    <p class="mt-1 text-sm text-gray-600">Join us for a day of innovation and networking with leaders in various fields.</p>
+                  </div>
+                </div>
+              </div>
+              <!-- Duplicate above for more cards -->
             </div>
-          </section>
+        
+            <!-- Navigation Buttons -->
+            <button id="prev" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow hidden sm:block">←</button>
+            <button id="next" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow hidden sm:block">→</button>
+          </div>
+        </section>        
 
           <!-- Upcoming Events -->
           <section class="mb-10">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Upcoming Events</h2>
             <div class="bg-white p-4 rounded-lg shadow">
-              <p class="text-sm text-gray-600">UI Design Workshop</p>
-              <p class="text-xs text-gray-400">April 15, 2025 - 10:00 AM</p>
+              <p class="text-sm text-gray-600">Career Fair</p>
+              <p class="text-xs text-gray-400">May 10, 2025 - 9:00 AM</p>
             </div>
           </section>
 
@@ -117,8 +157,8 @@
           <section>
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Past Events</h2>
             <div class="bg-white p-4 rounded-lg shadow mb-2">
-              <p class="text-sm text-gray-600">Intro to React</p>
-              <p class="text-xs text-gray-400">March 12, 2025</p>
+              <p class="text-sm text-gray-600">USC Got Talent</p>
+              <p class="text-xs text-gray-400">April 2, 2025</p>
             </div>
           </section>
         </main>
@@ -210,9 +250,9 @@
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-2">
                     <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">Active</span>
-                    <span class="text-sm text-gray-500">March 15, 2025</span>
+                    <span class="text-sm text-gray-500">June 15, 2025</span>
                   </div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Annual Tech Conference</h3>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Annual Leadership Seminar</h3>
                   <p class="text-sm text-gray-600 mb-4">Join us for a day of innovation and networking with industry leaders.</p>
                   <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-500">256 Registered</span>
@@ -224,34 +264,15 @@
               <!-- Event Card 2 -->
               <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="h-48 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94" alt="Career Fair" class="w-full h-full object-cover">
-                </div>
-                <div class="p-6">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full">Draft</span>
-                    <span class="text-sm text-gray-500">April 2, 2025</span>
-                  </div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Spring Career Fair</h3>
-                  <p class="text-sm text-gray-600 mb-4">Connect with top employers and explore career opportunities.</p>
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-500">Registration opens soon</span>
-                    <button class="text-green-600 hover:text-green-700">Edit →</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Event Card 3 -->
-              <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="h-48 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1511578314322-379afb476865" alt="Cultural Festival" class="w-full h-full object-cover">
+                  <img src="https://images.unsplash.com/photo-1511578314322-379afb476865" alt="Career Fair" class="w-full h-full object-cover">
                 </div>
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-2">
                     <span class="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Planning</span>
                     <span class="text-sm text-gray-500">May 10, 2025</span>
                   </div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Cultural Festival</h3>
-                  <p class="text-sm text-gray-600 mb-4">Celebrate diversity through music, dance, and international cuisine.</p>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Career Fair</h3>
+                  <p class="text-sm text-gray-600 mb-4">Network with top employers and explore available career opportunities.</p>
                   <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-500">Planning in progress</span>
                     <button class="text-green-600 hover:text-green-700">Review →</button>
@@ -273,7 +294,7 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-900">New registration for <span class="font-medium">Annual Tech Conference</span></p>
+                    <p class="text-sm text-gray-900">New registration for <span class="font-medium">Annual Leadership Seminar</span></p>
                     <p class="text-xs text-gray-500">2 minutes ago</p>
                   </div>
                 </div>
@@ -286,7 +307,7 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-900">Updated details for <span class="font-medium">Spring Career Fair</span></p>
+                    <p class="text-sm text-gray-900">Updated details for <span class="font-medium">USC Got Talent</span></p>
                     <p class="text-xs text-gray-500">1 hour ago</p>
                   </div>
                 </div>
@@ -298,7 +319,7 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-900">New review for <span class="font-medium">Cultural Festival</span></p>
+                    <p class="text-sm text-gray-900">New review for <span class="font-medium">Career Fair</span></p>
                     <p class="text-xs text-gray-500">3 hours ago</p>
                   </div>
                 </div>
@@ -526,6 +547,54 @@
         </main>
       </div>
     </div>
+    <script>
+      const track = document.getElementById("carousel-track");
+      const items = document.querySelectorAll(".carousel-item");
+      const prevBtn = document.getElementById("prev");
+      const nextBtn = document.getElementById("next");
+    
+      let currentIndex = 0;
+    
+      function updateCarousel() {
+        items.forEach((item, index) => {
+          if (index === currentIndex) {
+            item.classList.add("scale-100", "opacity-100");
+            item.classList.remove("scale-50", "opacity-30");
+          } else {
+            item.classList.add("scale-50", "opacity-30");
+            item.classList.remove("scale-100", "opacity-100");
+          }
+        });
+    
+        const itemWidth = items[0].offsetWidth;
+        const gap = parseInt(getComputedStyle(items[0]).marginRight || 0);
+        track.style.transform = `translateX(-${(itemWidth + gap) * currentIndex}px)`;
+      }
+    
+      prevBtn.addEventListener("click", () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateCarousel();
+        }
+      });
+    
+      nextBtn.addEventListener("click", () => {
+        if (currentIndex < items.length - 1) {
+          currentIndex++;
+          updateCarousel();
+        }
+      });
+    
+      items.forEach((item, index) => {
+        item.addEventListener("click", () => {
+          currentIndex = index;
+          updateCarousel();
+        });
+      });
+    
+      // Initial state
+      updateCarousel();
+    </script>     
     <script src="/dist/bundle.js"></script>
   </body>
 </html>
