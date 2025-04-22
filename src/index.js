@@ -703,6 +703,10 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
+    if (currentUser?.role === "student") {
+      document.getElementById("student-actions")?.classList.remove("hidden");
+    }
+
     if (currentUser?.role === "admin") {
       document.getElementById("admin-actions")?.classList.remove("hidden");
     }
