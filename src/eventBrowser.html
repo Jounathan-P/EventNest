@@ -83,56 +83,6 @@
 		</div>
 	</div>
 </footer>
-
-<script type="module">
-	import { initializeApp } from 'firebase/app';
-	import { getAuth, onAuthStateChanged } from 'firebase/auth';
-
-	// Firebase Configuration
-	const firebaseConfig = {
-		apiKey: "AIzaSyCGtWIzrefSz12n86tWzbHnetUnHT3QFo8",
-		authDomain: "eventnest-52826.firebaseapp.com",
-		projectId: "eventnest-52826",
-		storageBucket: "eventnest-52826.firebasestorage.app",
-		messagingSenderId: "621756390258",
-		appId: "1:621756390258:web:7a71692f79c503d2de1beb",
-		measurementId: "G-8FXCZ7KZV3"
-	};
-
-	// Initialize Firebase
-	const app = initializeApp(firebaseConfig);
-	const auth = getAuth();
-
-	// Authentication state observer
-	onAuthStateChanged(auth, (user) => {
-		const authButtonContainer = document.getElementById('auth-button-container');
-		if (user) {
-			authButtonContainer.innerHTML = `
-				<div class="flex items-center space-x-4">
-					<a href="/dashboard.html" class="text-gray-300 hover:text-white">Dashboard</a>
-					<button class="logout px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-						Logout
-					</button>
-				</div>
-			`;
-		} else {
-			authButtonContainer.innerHTML = `
-				<a href="/loginPage.html" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-					Login
-				</a>
-			`;
-		}
-	});
-
-	// Logout handler
-	document.body.addEventListener('click', (e) => {
-		if (e.target.matches('.logout')) {
-			e.preventDefault();
-			auth.signOut().then(() => {
-				window.location.href = '/';
-			});
-		}
-	});
-</script>
+<script src="/dist/bundle.js"></script>
 </body>
 </html>

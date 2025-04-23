@@ -42,6 +42,45 @@ onSnapshot(eventsCollection, (snapshot) => {
 });
 
 /* Homepage Section */
+// Rendering Homepage Event Cards
+async function loadRandomFeaturedEvents() {
+  const container = document.getElementById("featured-events-container");
+  if (!container) return;
+
+  try {
+    const snapshot = await getDocs(collection(db, "events"));
+    const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Shuffle and pick 3
+    const shuffled = _.shuffle(events).slice(0, 3);
+
+    container.innerHTML = "";
+
+    shuffled.forEach(event => {
+      const date = new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      container.innerHTML += `
+        <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition cursor-pointer" onclick="window.location.href='eventDetails.html?id=${event.id}'">
+          <img src="${event.image || 'https://placehold.co/600x400'}" alt="${event.title}" class="w-full h-48 object-cover" />
+          <div class="p-6">
+            <div class="flex items-center text-sm text-gray-500">
+              <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              ${date}
+            </div>
+            <h3 class="mt-2 text-xl font-semibold text-gray-900">${event.title}</h3>
+            <p class="mt-2 text-gray-600">${event.description?.slice(0, 100) || "No description available"}...</p>
+          </div>
+        </div>
+      `;
+    });
+  } catch (error) {
+    console.error("Error loading events:", error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadRandomFeaturedEvents);
+
 // Menu Toggle Functionality
 window.onload = function () {
   const menuToggle = document.getElementById("menu-toggle");
@@ -512,6 +551,124 @@ async function deleteEvent(eventId) {
   }
 }
 
+// Organizer Render Upcoming Events
+async function loadUpcomingEvents() {
+  const container = document.getElementById("upcoming-events-container");
+  if (!container) return;
+
+  const today = new Date();
+  const q = query(
+    collection(db, "events"),
+    where("status", "==", "approve"), // or use "active"
+    where("date", ">=", today.toISOString())
+  );
+
+  try {
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      container.innerHTML = `<p class="text-gray-500">No upcoming events found.</p>`;
+      return;
+    }
+
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const event = doc.data();
+      const id = doc.id;
+      const date = new Date(event.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+      const card = `
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow transition cursor-pointer" onclick="window.location.href='eventDetails.html?id=${id}'">
+          <div class="h-48 overflow-hidden">
+            <img src="${event.image || 'https://placehold.co/600x400'}" alt="${event.title}" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">${event.status || "Upcoming"}</span>
+              <span class="text-sm text-gray-500">${date}</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">${event.title}</h3>
+            <p class="text-sm text-gray-600 mb-4">${event.description?.slice(0, 100) || "No description available"}...</p>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">${event.attendeeCount || 0} Registered</span>
+              <span class="text-green-600 hover:text-green-700">View →</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.insertAdjacentHTML("beforeend", card);
+    });
+  } catch (error) {
+    console.error("Error loading upcoming events:", error);
+    container.innerHTML = `<p class="text-red-500">Failed to load events.</p>`;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadUpcomingEvents);
+
+// Load Organizer Pending Events
+async function loadOrgPendingEvents(user) {
+  const container = document.getElementById("pending-events-container");
+  if (!container) return;if (user) {
+    // ✅ User is fully loaded and logged in
+    const q = query(
+      collection(db, "events"),
+      where("organizerId", "==", user.uid),
+      where("status", "==", "pending")
+    );
+
+    try {
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        container.innerHTML = `<p class="text-gray-500">No upcoming events found.</p>`;
+        return;
+      }
+
+  snapshot.forEach(doc => {
+    const event = doc.data();
+    const id = doc.id;
+    const date = new Date(event.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+    const card = `
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow transition cursor-pointer" onclick="window.location.href='eventDetails.html?id=${id}'">
+          <div class="h-48 overflow-hidden">
+            <img src="${event.image || 'https://placehold.co/600x400'}" alt="${event.title}" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">${event.status || "Upcoming"}</span>
+              <span class="text-sm text-gray-500">${date}</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">${event.title}</h3>
+            <p class="text-sm text-gray-600 mb-4">${event.description?.slice(0, 100) || "No description available"}...</p>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">${event.attendeeCount || 0} Registered</span>
+              <span class="text-green-600 hover:text-green-700">View →</span>
+            </div>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", card);
+    });
+  } catch (error) {
+    console.error("Error loading upcoming events:", error);
+    container.innerHTML = `<p class="text-red-500">Failed to load events.</p>`;
+  }
+}
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const auth = getAuth();
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loadOrgPendingEvents(user);
+    } else {
+      console.error("User not logged in.");
+      document.getElementById("pending-events-container").innerHTML = `<p class="text-red-500">Please log in to see your events.</p>`;
+    }
+  });
+});
+
+// Admin dashboard event loader
 async function loadPendingEvents() {
   const eventsRef = collection(db, "events");
   const q = query(eventsRef, where("status", "==", "pending"));
@@ -529,7 +686,7 @@ async function loadPendingEvents() {
         <td class="px-6 py-4 whitespace-nowrap">
           <div class="flex items-center">
             <div class="h-10 w-10 flex-shrink-0">
-              <img class="h-10 w-10 rounded-full" src="${data.image || 'https://via.placeholder.com/40'}" alt="">
+              <img class="h-10 w-10 rounded-full" src="${data.image || 'https://placehold.co/600x400'}" alt="">
             </div>
             <div class="ml-4">
               <div class="text-sm font-medium text-gray-900">${data.title || data.name}</div>
@@ -589,6 +746,7 @@ async function denyEvent(eventId) {
   }
 }
 
+// Load User Dashboard
 document.addEventListener('DOMContentLoaded', () => {
   const isDashboard = window.location.pathname.includes('dashboard');
 
@@ -627,6 +785,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// Display Event Details
 document.addEventListener("DOMContentLoaded", () => {
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get("id");
@@ -762,6 +922,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 });
+
+// Render Callender
 document.addEventListener("DOMContentLoaded", () => {
   // Check if calendar container exists on this page
   const calendarContainer = document.getElementById("calendar-container");

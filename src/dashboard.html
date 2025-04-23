@@ -13,7 +13,7 @@
   <body class="bg-gray-100 font-sans">
     <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 bg-[#0F172A] text-white p-6 space-y-6">
+    <aside class="h-dvw w-64 bg-[#0F172A] text-white p-6 space-y-6">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10">
           <svg viewBox="0 0 100 100" class="w-full h-full">
@@ -239,48 +239,26 @@
           <section class="mb-8">
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-xl font-semibold text-gray-900">Upcoming Events</h2>
-              <button class="text-sm text-gray-500 hover:text-gray-700">View all</button>
+              <a href="eventBrowser.html" class="text-sm text-gray-500 hover:text-gray-700">View all</a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <!-- Event Card 1 -->
-              <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="h-48 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87" alt="Tech Conference" class="w-full h-full object-cover">
-                </div>
-                <div class="p-6">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">Active</span>
-                    <span class="text-sm text-gray-500">June 15, 2025</span>
-                  </div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Annual Leadership Seminar</h3>
-                  <p class="text-sm text-gray-600 mb-4">Join us for a day of innovation and networking with industry leaders.</p>
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-500">256 Registered</span>
-                    <button class="text-green-600 hover:text-green-700">Manage →</button>
-                  </div>
-                </div>
-              </div>
+          
+            <!-- Container where JS will inject cards -->
+            <div id="upcoming-events-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Event cards will be injected here -->
+            </div>
+          </section>          
 
-              <!-- Event Card 2 -->
-              <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="h-48 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1511578314322-379afb476865" alt="Career Fair" class="w-full h-full object-cover">
-                </div>
-                <div class="p-6">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Planning</span>
-                    <span class="text-sm text-gray-500">May 10, 2025</span>
-                  </div>
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Career Fair</h3>
-                  <p class="text-sm text-gray-600 mb-4">Network with top employers and explore available career opportunities.</p>
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-500">Planning in progress</span>
-                    <button class="text-green-600 hover:text-green-700">Review →</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          <!-- Pending Events Section -->
+          <section class="mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">Pending Events</h2>
+          </div>
+        
+          <!-- Container where JS will inject cards -->
+          <div id="pending-events-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Event cards will be injected here -->
+          </div>
+        </section>          
 
           <!-- Recent Activity -->
           <section>

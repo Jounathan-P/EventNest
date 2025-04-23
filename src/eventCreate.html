@@ -8,38 +8,7 @@
 	<script src="https://cdn.tailwindcss.com"></script>
 	<title>Create an Event - EventNest</title>
 </head>
-<body class="min-h-screen bg-gray-50">
-  <!-- Navigation -->
-  <nav class="bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-30">
-        <div class="flex items-center space-x-4">
-          <a href="index.html" class="flex items-center">
-            <img src="/media/enestLogo.png" alt="Event Nest Logo" class="h-20 w-auto">
-          </a>
-        </div>
-        <div class="hidden sm:flex sm:space-x-8">
-          <a href="eventBrowser.html" class="border-gray-300 text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-            Events
-          </a>
-          <a href="eventCalendar.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-            Calendar
-          </a>
-          <a href="aboutUs.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-            About Us
-          </a>
-          <a href="dashboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-            Dashboard
-          </a>
-        </div>
-        <div class="hidden sm:flex sm:items-center">
-        <!-- Dynamic Login/Logout Button -->
-        <div id="auth-button-container" class="dynamicLogin"></div>
-        </div>
-      </div>
-    </div>
-  </nav>
-            
+<body class="min-h-screen bg-gray-50">    
   <div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-[#0F172A] text-white p-6 space-y-6">
@@ -230,63 +199,14 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-[#0F172A] text-white mt-20">
+  <footer class="bg-[#0F172A] text-white">
     <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div class="text-center">
         <p class="text-gray-400">© 2025 EventNest. All rights reserved.</p>
       </div>
     </div>
   </footer>
-  
-  <script type="module">
-    import { initializeApp } from 'firebase/app';
-    import { getAuth, onAuthStateChanged } from 'firebase/auth';
-  
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCGtWIzrefSz12n86tWzbHnetUnHT3QFo8",
-      authDomain: "eventnest-52826.firebaseapp.com",
-      projectId: "eventnest-52826",
-      storageBucket: "eventnest-52826.firebasestorage.app",
-      messagingSenderId: "621756390258",
-      appId: "1:621756390258:web:7a71692f79c503d2de1beb",
-      measurementId: "G-8FXCZ7KZV3"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-  
-    // Authentication state observer
-    onAuthStateChanged(auth, (user) => {
-      const authButtonContainer = document.getElementById('auth-button-container');
-      if (user) {
-        authButtonContainer.innerHTML = `
-          <div class="flex items-center space-x-4">
-            <a href="/dashboard.html" class="text-gray-300 hover:text-white">Dashboard</a>
-            <button class="logout px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-              Logout
-            </button>
-          </div>
-        `;
-      } else {
-        authButtonContainer.innerHTML = `
-          <a href="/loginPage.html" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-            Login
-          </a>
-        `;
-      }
-    });
-  
-    // Logout handler
-    document.body.addEventListener('click', (e) => {
-      if (e.target.matches('.logout')) {
-        e.preventDefault();
-        auth.signOut().then(() => {
-          window.location.href = '/';
-        });
-      }
-    });
-  </script>
-  </body>
-  </html>
+
+  <script src="/dist/bundle.js"></script>
+</body>
+</html>
